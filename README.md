@@ -9,7 +9,8 @@ the short and mid term (unless paid :) ).
 
 If you can read Spanish have a look at the [thesis itself](doc/memoria.pdf).
 
-Code in `src` is under MIT license (see `src/LICENSE`)
+Code in `src` is under MIT license (see `src/LICENSE`).
+
 Documentation in `doc` is under Creative Commons Attribution 4.0 (see `doc/LICENSE`).
 
 # Features
