@@ -1,6 +1,0 @@
-all:
-	pdflatex memoria.tex
-	pdflatex memoria.tex
-	pdflatex memoria.tex
-	pdflatex memoria.tex
-
