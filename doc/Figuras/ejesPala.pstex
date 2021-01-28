@@ -1,0 +1,205 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: ejesPala.fig
+%%Creator: fig2dev Version 3.2 Patchlevel 4
+%%CreationDate: Fri Mar 17 14:08:38 2006
+%%For: asmodeus@Skynet ()
+%%BoundingBox: 0 0 208 161
+%%Magnification: 0.5000
+%%EndComments
+/$F2psDict 200 dict def
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/col-1 {0 setgray} bind def
+/col0 {0.000 0.000 0.000 srgb} bind def
+/col1 {0.000 0.000 1.000 srgb} bind def
+/col2 {0.000 1.000 0.000 srgb} bind def
+/col3 {0.000 1.000 1.000 srgb} bind def
+/col4 {1.000 0.000 0.000 srgb} bind def
+/col5 {1.000 0.000 1.000 srgb} bind def
+/col6 {1.000 1.000 0.000 srgb} bind def
+/col7 {1.000 1.000 1.000 srgb} bind def
+/col8 {0.000 0.000 0.560 srgb} bind def
+/col9 {0.000 0.000 0.690 srgb} bind def
+/col10 {0.000 0.000 0.820 srgb} bind def
+/col11 {0.530 0.810 1.000 srgb} bind def
+/col12 {0.000 0.560 0.000 srgb} bind def
+/col13 {0.000 0.690 0.000 srgb} bind def
+/col14 {0.000 0.820 0.000 srgb} bind def
+/col15 {0.000 0.560 0.560 srgb} bind def
+/col16 {0.000 0.690 0.690 srgb} bind def
+/col17 {0.000 0.820 0.820 srgb} bind def
+/col18 {0.560 0.000 0.000 srgb} bind def
+/col19 {0.690 0.000 0.000 srgb} bind def
+/col20 {0.820 0.000 0.000 srgb} bind def
+/col21 {0.560 0.000 0.560 srgb} bind def
+/col22 {0.690 0.000 0.690 srgb} bind def
+/col23 {0.820 0.000 0.820 srgb} bind def
+/col24 {0.500 0.190 0.000 srgb} bind def
+/col25 {0.630 0.250 0.000 srgb} bind def
+/col26 {0.750 0.380 0.000 srgb} bind def
+/col27 {1.000 0.500 0.500 srgb} bind def
+/col28 {1.000 0.630 0.630 srgb} bind def
+/col29 {1.000 0.750 0.750 srgb} bind def
+/col30 {1.000 0.880 0.880 srgb} bind def
+/col31 {1.000 0.840 0.000 srgb} bind def
+
+end
+save
+newpath 0 161 moveto 0 0 lineto 208 0 lineto 208 161 lineto closepath clip newpath
+-53.6 333.4 translate
+1 -1 scale
+
+/cp {closepath} bind def
+/ef {eofill} bind def
+/gr {grestore} bind def
+/gs {gsave} bind def
+/sa {save} bind def
+/rs {restore} bind def
+/l {lineto} bind def
+/m {moveto} bind def
+/rm {rmoveto} bind def
+/n {newpath} bind def
+/s {stroke} bind def
+/sh {show} bind def
+/slc {setlinecap} bind def
+/slj {setlinejoin} bind def
+/slw {setlinewidth} bind def
+/srgb {setrgbcolor} bind def
+/rot {rotate} bind def
+/sc {scale} bind def
+/sd {setdash} bind def
+/ff {findfont} bind def
+/sf {setfont} bind def
+/scf {scalefont} bind def
+/sw {stringwidth} bind def
+/tr {translate} bind def
+/tnt {dup dup currentrgbcolor
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add srgb}
+  bind def
+/shd {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+  4 -2 roll mul srgb} bind def
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+10 setmiterlimit
+0 slj 0 slc
+ 0.03000 0.03000 sc
+%
+% Fig objects follow
+%
+% 
+% here starts figure with depth 50
+% Polyline
+7.500 slw
+gs  clippath
+1785 7770 m 1785 7830 l 1936 7830 l 1816 7800 l 1936 7770 l cp
+eoclip
+n 5100 7800 m
+ 1800 7800 l gs 0.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 1936 7770 m 1816 7800 l 1936 7830 l 1936 7770 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+gs  clippath
+5070 11115 m 5130 11115 l 5130 10964 l 5100 11084 l 5070 10964 l cp
+eoclip
+n 5100 7800 m
+ 5100 11100 l gs 0.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 5070 10964 m 5100 11084 l 5130 10964 l 5070 10964 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+gs  clippath
+6930 6313 m 6892 6267 l 6776 6363 l 6888 6310 l 6815 6409 l cp
+eoclip
+n 5100 7800 m
+ 6900 6300 l gs 0.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 6815 6409 m 6888 6310 l 6776 6363 l 6815 6409 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+ [60] 0 sd
+n 5100 7800 m
+ 8700 7800 l gs 0.00 setgray ef gr gs col0 s gr  [] 0 sd
+% Polyline
+ [60] 0 sd
+n 5100 7800 m
+ 7950 6900 l gs 1.00 setgray ef gr gs col0 s gr  [] 0 sd
+% Polyline
+ [60] 0 sd
+n 7950 6900 m
+ 7950 6000 l gs 1.00 setgray ef gr gs col0 s gr  [] 0 sd
+% Polyline
+gs  clippath
+7978 6017 m 7946 5966 l 7818 6047 l 7936 6009 l 7850 6098 l cp
+eoclip
+n 5096 7812 m
+ 7950 6000 l gs 1.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 7850 6098 m 7936 6009 l 7818 6047 l 7850 6098 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+gs  clippath
+7795 9633 m 7829 9583 l 7703 9499 l 7787 9591 l 7670 9549 l cp
+eoclip
+n 5100 7800 m
+ 7800 9600 l gs 1.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 7670 9549 m 7787 9591 l 7703 9499 l 7670 9549 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+gs  clippath
+6582 10228 m 6633 10196 l 6552 10068 l 6591 10186 l 6501 10100 l cp
+eoclip
+n 5100 7800 m
+ 6600 10200 l gs 1.00 setgray ef gr gs col0 s gr gr
+
+% arrowhead
+n 6501 10100 m 6591 10186 l 6552 10068 l 6501 10100 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+2 slj
+gs  clippath
+7210 6438 m 7176 6487 l 7300 6574 l 7219 6481 l 7334 6525 l cp
+7342 7095 m 7398 7116 l 7452 6975 l 7382 7077 l 7396 6954 l cp
+eoclip
+n 7376 7092 m 7385 7068 l 7391 7054 l 7397 7037 l 7403 7018 l 7409 6997 l
+ 7416 6974 l 7421 6951 l 7426 6926 l 7429 6899 l 7431 6872 l
+ 7431 6842 l 7429 6810 l 7424 6777 l 7416 6742 l 7405 6708 l
+ 7392 6677 l 7378 6649 l 7363 6625 l 7348 6602 l 7332 6582 l
+ 7315 6564 l 7299 6547 l 7282 6532 l 7266 6518 l 7251 6506 l
+ 7237 6495 l 7226 6486 l
+ 7206 6472 l gs col0 s gr gr
+
+% arrowhead
+0 slj
+n 7396 6954 m 7382 7077 l 7452 6975 l 7396 6954 l  cp gs 0.00 setgray ef gr  col0 s
+% arrowhead
+n 7334 6525 m 7219 6481 l 7300 6574 l 7334 6525 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+2 slj
+gs  clippath
+7961 6858 m 7926 6907 l 8047 6997 l 7969 6902 l 8083 6949 l cp
+8367 7820 m 8427 7813 l 8411 7663 l 8394 7786 l 8351 7669 l cp
+eoclip
+n 8396 7802 m 8394 7783 l 8392 7771 l 8390 7756 l 8387 7738 l 8384 7717 l
+ 8380 7694 l 8376 7669 l 8372 7642 l 8366 7614 l 8361 7586 l
+ 8354 7556 l 8347 7525 l 8339 7494 l 8330 7461 l 8320 7428 l
+ 8308 7393 l 8295 7356 l 8280 7319 l 8264 7280 l 8246 7242 l
+ 8224 7198 l 8201 7157 l 8179 7121 l 8157 7090 l 8136 7061 l
+ 8116 7036 l 8097 7014 l 8078 6994 l 8059 6976 l 8042 6960 l
+ 8025 6945 l 8009 6932 l 7995 6921 l 7982 6911 l 7972 6904 l
+
+ 7956 6892 l gs col0 s gr gr
+
+% arrowhead
+0 slj
+n 8351 7669 m 8394 7786 l 8411 7663 l 8351 7669 l  cp gs 0.00 setgray ef gr  col0 s
+% arrowhead
+n 8083 6949 m 7969 6902 l 8047 6997 l 8083 6949 l  cp gs 0.00 setgray ef gr  col0 s
+% here ends figure;
+$F2psEnd
+rs
+showpage

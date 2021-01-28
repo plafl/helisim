@@ -1,0 +1,456 @@
+\chapter{Manual de Usuario}
+
+\section{Requerimientos}
+Para el cálculo de trimado y derivadas de estabilidad se requieren los 
+siguientes programas y librerías:
+\begin{itemize}
+    \item python 2.4
+    \item numarray
+\end{itemize}
+
+Para representar en tiempo real el helicóptero y pilotarlo:
+\begin{itemize}
+    \item FlightGear 0.9.10
+\end{itemize}
+
+\section{Contenidos del CD}
+En la distribución se incluyen al menos los siguientes ficheros:
+\begin{itemize}
+    \item \verb!bin! 
+        \begin{itemize} 
+            \item \verb!icaro!
+            \item \verb!c_colision.so!
+            \item \verb!serializa!
+            \item \verb!trimado!
+            \item \verb!derivadas!
+        \end{itemize}
+        \verb!icaro! es el programa más importante y se incluye una descripción a 
+        continuación. \verb!serializa!, \verb!trimado! y \verb!derivadas! son 
+        utilidades para el cálculo de diversos resultados, que se han utilizado en la 
+        realización del proyecto y \verb!c_colision.so! es simplemente una librería de 
+        C que se necesita (su código se encuentra disponible en \verb!src!).
+    \item \verb!src!
+        Contiene el código fuente necesario para el funcionamiento del simulador
+    \item \verb!txt! 
+        Contiene el código \LaTeX de la memoria, y todas las figuras en formato
+        postscript y en el formato original necesarias.
+    \item \verb!dat!
+        \begin{itemize}
+            \item \verb!runfgfs.sh!: un script con las opciones típicas para
+                invocar a FlightGear.
+            \item \verb!X52.xml!: fichero con la descripción del joystick
+                de la marca Saitek.
+            \item \verb!prop-pedals-usb.xml!.: fichero con la descripción de los 
+                pedales de la marca CH.
+            \item \verb!Lynx!: Contiene la descripción del helicóptero Lynx 
+                necesaria para el funcionamiento de FlightGear. 
+        \end{itemize}
+\end{itemize}
+
+
+
+\section{icaro}
+Para realizar un vuelo el primer paso es ejecutar \verb!icaro!, como mínimo
+especificando el modelo a utilizar. Por ejemplo, si en el directorio actual se
+encuentra el fichero \verb!Lynx.py! que contiene una descripción completa
+del modelo, el arranque del programa tendría el siguiente aspecto:
+
+\begin{Verbatim}
+$icaro --modelo=Lynx
+# INFO: Leyendo modelo de helicoptero Lynx
+# INFO: Iniciando conexion de entrada de controles
+# INFO: Entrando en el bucle de la simulacion.
+# INFO: Presione Ctrl-C para cancelar la simulacion.
+\end{Verbatim}
+
+En este punto el simulador se queda esperando una conexión a FlightGear, por
+lo que arrancaríamos este último con, por lo menos, las siguientes opciones:
+
+\begin{Verbatim}
+$fgfs --fdm=network,localhost,5001,5002,5003 --aircraft=Lynx 
+--enable-hud --model-hz=35
+\end{Verbatim}
+
+Es importante especificar un valor correcto para la opción \verb!--modelo-hz! 
+ya que es la frecuencia con que se ejecuta el modelo, por lo que tiene que ser
+suficientemente elevada para garantizar la convergencia del integrador y 
+suficientemente baja para garantizar que de tiempo a realizar el paso de integración.
+Para el esquema Predictor-Corrector 35 es un valor aceptable.
+
+Una descripción más detallada de las opciones se encuentra en la sección
+dedicada a FlightGear.
+
+Una vez termine de arrancar FlightGear manda a nuestro programa la información
+de posición y orientación iniciales, icaro informa de ello:
+\begin{Verbatim}
+# INFO: Posicion inicial recibida:
+# INFO:         longitud = -2.135844 rad
+# INFO:         latitud  = 0.656575 rad
+# INFO:         altitud  = 1.290497 m
+# INFO:         azimuth  = 4.712389 rad
+# INFO:         altura del suelo  = 1.290497 m
+\end{Verbatim}
+
+Una vez hayamos terminado de volar, cancelamos la simulación pulsando
+Ctrl-C:
+\begin{Verbatim}
+# Deteniendo la simulacion...
+# INFO: Cerrando conexiones...
+# INFO: Cerrando archivos...
+\end{Verbatim}
+
+A la descripción completa de las opciones que acepta icaro se puede acceder
+desde la línea de comandos:
+\begin{Verbatim}
+$icaro --help
+
+usage: icaro --modelo=M, [--logfile=F, --logprop=a, [b,c...]] [--host=H], 
+[--puertos=p0,p1,p2]
+
+options:
+  --version          show program's version number and exit
+  -h, --help         show this help message and exit
+  --modelo=MODELO    Nombre del archivo que contiene el modelo, sin la
+                     extension .py
+  --logfile=LOGFILE  Fichero opcional de salida de datos para logging
+  --logprop=LOGPROP  Propiedades a escribir en el fichero de logging.
+                     Consultar documentacion para ver la lista de
+                     posibilidades
+  --host=HOST        Direccion de la maquina ejecutando FlightGear, si no se
+                     especifica se asume localhost
+  --puertos=PUERTOS  Puertos de conexion con FlightGear, respectivamente son
+                     de controles, del FDM y de comandos. Por defecto son los
+                     puertos 5001, 5002 y 5003 respectivamente
+\end{Verbatim}
+
+\subsection{Logging}
+Es posible almacenar en un fichero la historia temporal de ciertas variables;
+esto permite consultar más tarde los resultados en el fichero o incluso
+mostrarlos en pantalla en tiempo real.
+
+Las variables que se quieran ir guardando se especifican en la línea de 
+comandos como una lista separada por comas. Por ejemplo:
+
+\begin{Verbatim}
+$icaro --modelo=Lynx --logfile=vuelo.dat --logprop=u,v,w
+\end{Verbatim}
+
+El simulador en este caso crearía el fichero \verb!vuelo.dat! si no existe, y si
+existe, sobreescribiría encima y guardaría para cada instante de tiempo que
+calcule 4 columnas de datos. La primera columna indica el instante de tiempo y
+las restantes columnas las variables que se han especificado mediante
+\verb!--logprop=u,v,w!, en este caso la velocidad en ejes cuerpo, en el mismo
+orden en que se han especificado.
+
+En caso de que se pida una variable que no se encuentre calculada, bien porque
+se haya cometido un error tipográfico o porque no se pueda realizar
+el cálculo, el programa le asigna un valor de 0 y continúa.
+
+Si se quiere visualizar interactivamente los resultados durante la simulación,
+el fichero de salida tiene ese formato precisamente para poder utilizarlo
+directamente con el programa \verb!kst! (\url{http://kst.kde.org}). Para ello, 
+mientras corre la simulación, deberíamos haber ejecutado:
+\begin{Verbatim}
+$kst -x1 -y2 -y3 -y4 -m1 vuelo.dat
+\end{Verbatim}
+
+Si se quiere manipular la salida se puede pasar el fichero de logging a 
+código en python. Se
+incluye una pequeña utilidad \verb!serializa! que crea un interpolador
+lineal en función del tiempo para cada columna del fichero. Por ejemplo,
+para utilizar en una sesión de python el fichero \verb!vuelo.dat! del 
+ejemplo anterior ejecutaríamos:
+\begin{Verbatim}
+$serializa -i vuelo.dat -o vuelo.pickle
+\end{Verbatim}
+
+A continuación cargaríamos las variables en las sesión de python:
+\begin{Verbatim}
+    import pickle
+    f = open('vuelo.pickle', 'r')
+    u = pickle.load(f)
+    v = pickle.load(f)
+    w = pickle.load(f)
+\end{Verbatim}
+
+Ahora ya podemos manipular tranquilamente \verb!u!, \verb!v! y \verb!w! con
+nuestro código. Por ejemplo, mostrándolo por pantalla:
+\begin{Verbatim}
+    import pylab
+    pylab.plot(u.x, u.y)
+    pylab.plot(v.x, v.y)
+    pylab.plot(w.x, w.y)
+    pylab.show()
+\end{Verbatim}
+
+Los objetos creados son interpoladores lineales tal como se encuentran
+definidos en \verb!matematicas.py!. Disponen de dos atributos que contienen 
+las coordenadas de los puntos que interpolan: \verb!x! e \verb!y! y pueden
+ser llamados como función para que calculen al valor en un punto arbitrario.
+
+A continuación se da la lista de variables que se pueden pasar como argumentos,
+a \verb!--logprop!, una descripción de su significado y el símbolo matemático 
+asociado.
+
+\subsubsection{General}
+\begin{itemize}
+    \item \verb!u! ($u$), \verb!v! ($v$), \verb!w! ($w$): componentes de la 
+        velocidad del helicóptero en ejes cuerpo, en metros por segundo.
+    \item \verb!p! ($p$), \verb!q! ($q$), \verb!r! ($r$): componentes de la 
+        velocidad angular del helicóptero en ejes cuerpo, 
+        en radianes por segundo.
+    \item \verb!q0! ($q_0$), \verb!q1! ($q_1$), \verb!q2! ($q_2$), 
+        \verb!q3! ($q_3$): componentes del cuaternio de rotación.
+
+    \item \verb!th! ($\theta$): ángulo de cabeceo, en radianes.
+    \item \verb!fi! ($\phi$): ángulo de balance, en radianes.
+    \item \verb!ch! ($\psi$): ángulo de guiñada, en radianes.
+    
+    \item \verb!alt! ($h$): altitud, en metros.
+    \item \verb!lon! ($\lambda$): longitud, en radianes.
+    \item \verb!lat! ($\phi$): latitud, en radianes.
+    
+    \item \verb!x_i! ($x_i$), \verb!y_i! ($y_i$), \verb!z_i! ($z_i$): posición 
+        en ejes inerciales 
+\end{itemize}
+
+\subsubsection{Rotor principal}
+\begin{itemize}
+    \item \verb!la0! ($\lambda_0$), \verb!la1cw! ($\lambda_{1cw}$), 
+        \verb!la1sw! ($\lambda_{1sw}$): componentes de la velocidad inducida, 
+        en ejes rotor-viento.
+    \item \verb!be0! ($\beta_0$), \verb!be1cw! ($\beta_{1cw}$),  
+        \verb!be1sw! ($\beta_{1sw}$): componentes del batimiento, en ejes
+        rotor-viento.
+    \item \verb!cT! ($c_T$): coeficiente de sustentación del rotor.
+    \item \verb!XR_b! ($X_{R_b}$), \verb!YR_b! ($Y_{R_b}$), 
+        \verb!ZR_b! ($Z_{R_b}$): componentes de las fuerzas del rotor sobre el 
+        centro de masas en ejes cuerpo, en Newtons.
+    \item \verb!LR_b! ($L_{R_b}$), \verb!MR_b! ($M_{R_b}$), 
+        \verb!NR_b! ($N_{R_b}$): componentes de los momentos del rotor sobre 
+        el centro de masas en ejes cuerpo, en Newtons por metro.
+\end{itemize}
+    
+\subsubsection{Fuselaje}
+\begin{itemize}
+    \item \verb!alf! ($\alpha_f$): ángulo de ataque del fuselaje, en radianes.
+    \item \verb!bef! ($\beta_f$): ángulo de resbalamiento del fuselaje, en 
+        radianes.
+    \item \verb!Xf_b! ($X_{f_b}$), \verb!Yf_b! ($Y_{f_b}$), 
+        \verb!Zf_b! ($Z_{f_b}$): componentes de las fuerzas del fuselaje sobre 
+        el centro de masas en ejes cuerpo.
+    \item \verb!Lf_b! ($L_{f_b}$), \verb!Mf_b! ($M_{f_b}$), 
+        \verb!Nf_b! ($N_{f_b}$): componentes de los momentos del fuselaje sobre
+        el centro de masas en ejes cuerpo.
+\end{itemize}
+
+\subsubsection{Controles}
+\begin{itemize}
+    \item \verb!th0! ($\theta_0$), \verb!th1c! ($\theta_{1c}$),
+        \verb!th1s! ($\theta_{1s}$): componentes del paso del rotor en ejes 
+        rotor, en radianes.
+    \item \verb!th0T! ($\theta_{0_T}$): paso del rotor de cola en radianes.
+    \item \verb!eta0p! ($\eta_{0p}$): control colectivo del piloto. 
+        Normalizado de 0 a 1.
+    \item \verb!eta1sp! ($\eta_{1s}$): control longitudinal del piloto. 
+        Normalizado de -1 a +1.
+    \item \verb!eta1cp! ($\eta_{1c}$): control lateral del piloto. 
+        Normalizado de -1 a +1.
+    \item \verb!etapp! ($\eta_{pp}$): control de pedales del piloto. 
+        Normalizado de -1 a +1.
+\end{itemize}
+
+\subsubsection{Motor}
+\begin{itemize}
+    \item \verb!Om! ($\Omega$): velocidad de giro del rotor en rad/s.
+    \item \verb!Q1! ($Q_1$): par de un motor.
+    \item \verb!DTQ1! ($\dot{Q}_1$): derivada del par de un motor.
+\end{itemize}
+    
+\subsubsection{Rotor de cola}
+\begin{itemize}
+    \item \verb!cTT! ($c_{T_T}$): coeficiente de sustentación del rotor de cola.
+    \item \verb!la0T! ($la0T$): velocidad inducida en el rotor de cola.
+    \item \verb!XT_b! ($X_{T_b}$), \verb!YT_b! ($Y_{T_b}$),
+        \verb!ZT_b! ($Z_{T_b}$): componentes de las fuerzas del rotor de cola 
+        sobre el centro de masas, en ejes cuerpo.
+    \item \verb!LT_b! ($L_{T_b}$), \verb!MT_b! ($M_{T_b}$), 
+        \verb!NT_b! ($N_{T_b}$): componentes de los momentos del rotor de cola
+        sobre el centro de masas, en ejes cuerpo.
+\end{itemize}
+    
+\subsubsection{Estabilizador vertical}
+\begin{itemize}
+    \item \verb!alfn! ($\alpha_{fn}$): ángulo de ataque del estabilizador 
+        vertical, en radianes.
+    \item \verb!befn! ($\beta_{fn}$): ángulo de resbalamiento del 
+        estabilizador vertical, en radianes.
+    \item \verb!Xfn_b! ($X_{fn_b}$), \verb!Yfn_b! ($Y_{fn_b}$), 
+        \verb!Zfn_b! ($Z_{fn_b}$): componentes de las fuerzas del 
+        estabilizador vertical sobre el centro de masas, en ejes cuerpo.
+    \item \verb!Lfn_b! ($L_{fn_b}$), \verb!Mfn_b! ($M_{fn_b}$), 
+        \verb!Nfn_b! ($N_{fn_b}$): componentes de los momentos del 
+        estabilizador vertical sobre el centro de masas, en ejes cuerpo.
+\end{itemize}
+    
+\subsubsection{Estabilizador horizontal}
+\begin{itemize}
+    \item \verb!altp! ($\alpha_{tp}$): ángulo de ataque del estabilizador 
+        horizontal, en radianes.
+    \item \verb!betp! ($\beta_{tp}$): ángulo de resbalamiento del 
+        estabilizador  horizontal, en radianes.
+    \item \verb!Xtp_b! ($X_{tp_b}$), \verb!Ytp_b! ($Y_{tp_b}$), 
+        \verb!Ztp_b! ($Z_{tp_b}$): componentes de las fuerzas del 
+        estabilizador horizontal sobre el centro de masas, en ejes cuerpo.
+    \item \verb!Lfn_b! ($L_{tp_b}$), \verb!Mtp_b! ($M_{tp_b}$), 
+        \verb!Nfn_b! ($N_{tp_b}$): componentes de los momentos del 
+        estabilizador horizontal sobre el centro de masas, en ejes cuerpo.
+\end{itemize}
+
+\section{FlightGear}
+
+\subsection{Introducción}
+
+FlightGear (en adelante referido como FGFS, FlightGear Flight Simulator), es un 
+simulador de vuelo distribuido bajo licencia GPL (GNU General Public License) 
+totalmente gratis. La página oficial del proyecto se encuentra
+en \url{http://www.flightgear.org} y se puede leer una buena introducción a la
+estructura del proyecto en \cite{fgfs}. FGFS presenta las siguientes características
+interesantes para el desarrollo de este proyecto fin de carrera:
+
+\begin{itemize}
+    \item Al ser licencia GPL se tiene acceso al código fuente, para leerlo y
+    para modificarlo. Hubiese sido posible por ejemplo integrar el código
+    del simulador de helicópteros en C++ dentro del propio programa
+    FlightGear (cosa que no se ha hecho como se explica más adelante). Sí se
+    ha utilizado dicha libertad de acceso al código fuente para estudiar el
+    protocolo de transmisión entre FlightGear y programas externos a traves
+    de sockets.
+
+    \item Ha sido diseñado pensando en la adaptación a las necesidades de cada
+    usuario. Resulta interesante, en particular, para proyectos de carácter
+    académico y otros que se salgan de los intereses de la mayoría del
+    mercado. Para ver una lista de proyectos que utilizan FGFS consultar
+    \url{http://www.flightgear.org/Projects/}
+
+    \item Está pensado para interaccionar con él mediante otros programas.
+    Todo el estado del simulador, desde el modelo 3D del helicóptero, su
+    posición, etc.. hasta la indicación de cualquier instrumento y el estado
+    meteorológico se encuentra organizado en forma de árbol, simulando un
+    sistema de archivos, al que se puede acceder desde diversos medios:
+    telnet, http desde cualquier navegador web, sockets y tuberías.
+
+    \item Formatos abiertos: los ficheros de configuración se encuentran en
+    XML, esto permite trabajar con ellos desde cualquier editor de
+    textos, además resultan bastante claros y sencillos. Hay una
+    gran cantidad de aeronaves ya preparadas para, a partir de las cuales,
+    crear tu propio fichero de configuración.
+
+    \item Multiplataforma: Funciona tanto en Linux como en Windows o Mac. De
+    hecho, es posible tener un ordenador con Linux ejecutando el FDM y otro
+    con Windows encargandose de la entrada/salida con el usuario.
+
+    \item Modularidad: En FGFS se encuentran separados claramente las partes
+    encargadas de la entrada/salida de datos del FDM. De hecho, FGFS viene
+    con 3 FDM ya incluidos: UUIC, YaSim y JSBSim. Esta separación permite
+    que le podamos añadir un cuarto FDM especializado para helicópteros, que
+    es el objeto de este proyecto fin de carrera.
+\end{itemize}
+
+\subsection[Integración FG-FDM]{Integración de FlightGear con el FDM de helicópteros}
+El simulador consta, por lo tanto de varios programas, operando simultáneos en uno
+o varios ordenadores y que se comunican entre ellos utilizando diversos
+protocolos, como se puede ver en la figura.
+
+\begin{figure}
+    \includegraphics[scale=0.5]{Figuras/esquema_flightgear.eps}
+\end{figure}
+
+FGFS y el FDM se comunican a traves de 3 canales como se puede ver en la figura:
+controles, estado y comandos. Cada uno de ellos requiere de un puerto distinto
+por lo que al iniciar FGFS es necesario indicar en la línea de comandos que el
+FDM va a ser un programa aparte, el ordenador donde se encuentra y los puertos
+de comunicación. Por ejemplo:
+
+\begin{Verbatim}
+$fgfs --fdm=network,localhost,5001,5002,5003
+\end{Verbatim}
+
+arranca FGFS y especifica que el FDM correrá en el mismo ordenador que FGFS y
+utilizará el puerto 5001 para los controles, el puerto 5002 para el estado del
+FDM y el 5003 para los comandos.
+
+Generalmente es necesario pasar más opciones, por ejemplo:
+
+\begin{Verbatim}
+$fgfs --aircraft=Lynx --airport=LEVS  --httpd=5080 
+--fdm=network,localhost,5001,5002,5003
+\end{Verbatim}
+
+Arrancaría FGFS utilizando el helicóptero Lynx, situandolo inicialmente en
+el aeropuerto de Cuatro Vientos. Además especifica como antes los puertos de
+comunicación con el FDM y añade un canal de comunicación en el puerto 5080 para
+poder inspeccionar y modificar el estado del simulador en tiempo real mediante
+un navegador web. En la imagen se puede observar como es posible acceder por
+ejemplo a todas las variables meteorológicas y modificarlas mediante el
+navegador web. Recordemos que no es necesario acceder desde el mismo ordenador.
+En el anterior caso un instructor podría estar modificando las variables
+atmosféricas desde cualquier otro ordenador, sea en una LAN o incluso Internet.
+
+\begin{figure}
+    \includegraphics[scale=0.35]{Figuras/HTTP.eps}
+\end{figure}
+
+\subsection[Comunicación]{Canales de comunicación con el FDM}
+No existe documentación del protocolo de transmisión, aparte del código fuente
+de FGFS. Básicamente FGFS crea una estructura, la rellena con los datos a
+transmitir y la manda tal cual a través de un socket UDP. El FDM debe crear una
+estructura espejo a la anterior y copiar tal cual en memoria los datos
+recibidos. La estructura de los controles que FGFS manda al FDM y la estructura
+de estado que el FDM manda a FGFS se encuentra definida en 
+
+\begin{Verbatim}
+    $FGSRC/src/Network/net_ctrls.hxx
+    $FGSRC/src/Network/net_fdm.hxx
+\end{Verbatim}
+
+Donde \verb#$FGSRC# indica el directorio raíz del código fuente de FGFS
+
+El canal de comandos utiliza protocolo HTTP y manda información al inicio de la
+simulación al FDM con la posición inicial de la aeronave.
+Se encuentra definido en
+
+\begin{Verbatim}
+    $FGSRC/src/FDM/ExternalNet/ExternalNet.hxx 
+    $FGSRC/src/FDM/ExternalNet/ExternalNet.cxx 
+\end{Verbatim}
+
+\subsection{Ficheros de FlightGear}
+Es necesario indicar a FGFS la aeronave a utilizar. Se puede obtener una lista
+de las aeronaves disponibles con la opción -\verb#--show-aircraft# que
+determinará las aeronaves disponibles en función de lo que encuentre en el
+directorio
+
+\begin{Verbatim}
+    $FGROOT/Aircraft
+\end{Verbatim}
+
+Donde cada nave tiene su propio subdirectorio. Se ha incluido ya un archivo
+listo para descomprimir en el directorio de aeronaves que contiene la
+descripción necesaria para FGFS del Lynx. Dicho archivo contiene el modelo
+3D, las texturas del modelo y los dos archivos XML con la configuración y
+descripción del panel de instrumentos.
+
+También es necesario disponer de los terrenos necesarios. Para ello es necesario
+bajarse e instalar manualmente los archivos en el directorio
+
+\begin{Verbatim}
+    $FGROOT/Scenery
+\end{Verbatim}
+
+o utilizar la utilidad TerraSync, un programa aparte que se baja los archivos
+según sean necesarios desde internet. Se han incluido ya los dos archivos
+necesarios para la península ibérica listos para descomprimir en el directorio
+de escenarios.
+
+Para más información consultar la documentación de FlightGear. 

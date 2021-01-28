@@ -1,0 +1,32 @@
+\chapter{Introducción}
+
+Se ha desarrollado un simulador de procedimientos para helicópteros de cuatro
+palas, un solo rotor principal y un rotor de cola. El simulador utiliza un 
+modelo de 6 grados de libertad de sólido rígido para el fuselaje. Para el rotor 
+calcula la solución del grado de libertad de batimiento de cada pala y 3 grados 
+de libertad para la velocidad inducida. Por último, incluye un grado de libertad 
+para la velocidad de giro del rotor y el par del motor. Dados los cuatro controles
+que ejerce el piloto y los datos atmosféricos puede calcular la respuesta del 
+helicóptero en cualquier situación de vuelo. 
+
+Los parámetros del helicóptero se especifican en un fichero aparte. Se incluyen 
+dos ficheros de ejemplo para el Lynx y el BlackHawk.
+
+Por otra parte el simulador tiene las siguientes limitaciones:
+\begin{itemize}
+    \item No simula correctamente los límites de operación del helicóptero. 
+    No predice la entrada en pérdida del rotor. 
+    \item No simula correctamente maniobras bruscas. 
+    \item Sistema de control demasiado simple. Sistemas reales llenos de 
+    no linealidades y mucho mas complejos.
+    \item No tiene en cuenta efectos de interacción entre rotor, rotor de cola, 
+    estabilizadores y fuselaje.
+    \item No calcula el consumo de combustible y la variación de la masa y los
+    momentos de inercia debido a ello.
+\end{itemize}
+
+Adicionalmente se incluye código, que se puede utilizar desde otros programas, 
+o desde la consola interactiva de python para el cálculo no interactivo
+de la respuesta, el cálculo de derivadas de estabilidad y el cálculo del 
+trimado del helicóptero para diversas condiciones de vuelo. Éste último con la 
+limitación de que no converge bien para las situaciones con resbalamiento.

@@ -1,0 +1,91 @@
+%        File: memoria.tex
+%     Created: vie mar 17 10:00  2006 C
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Preambulo                                                                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% A doble pagina y con margenes diferentes 
+% para paginas pares e imprares. Capitulos 
+% comienzan siempre en pagina impar
+\documentclass[a4paper]{book}
+% Cabeceras bonitas
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Para escribir bien en español
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc}
+% Para meter codigo fuente
+\usepackage{listings}
+\usepackage{fancyvrb}
+% Matematicas y figuras
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[usenames]{color}
+% Para meter bien direcciones de internet
+\usepackage{url}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Portada                                                                      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frontmatter
+
+% Titulo
+\begin{titlepage}
+    \begin{center}
+        {\Huge\textbf{ Simulador de Helicóptero}}
+        \includegraphics[width=120mm]{Figuras/Lynx.eps}
+        {\large Pedro López-Adeva Fernández-Layos
+
+         Proyecto Fin de Carrera
+
+         Ingeniería Aeronáutica
+
+         Universidad Politécnica de Madrid
+
+        }
+    \end{center}
+\end{titlepage}
+
+% Dedicatoria
+\newpage
+\begin{center}
+    \vspace*{2in}
+    {\it Dedicado a mis amigos Álvaro, Inés, Alex y Juan por aguantarme todo 
+    este tiempo e intentar mantenerme cuerdo. Sé que ha tenido mérito.
+
+    A mi novia Maica porque me ha apoyado y motivado constantemente y hace que 
+    me sea más fácil cualquier dificultad. 
+
+    Sobre todo dedicado a mi madre, porque cualquier mérito mío es suyo,
+    y a mi hermano, de quien he aprendido las lecciones más importantes. }
+\end{center}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Cuerpo                                                                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+
+% Capitulos
+\input{introduccion.tex}
+\input{sistemas_de_referencia.tex}
+\input{ecuaciones_del_modelo.tex}
+\input{integracion.tex}
+\input{trimado.tex}
+\input{lynx.tex}
+
+% Apendices
+\appendix
+\input{manual.tex}
+\input{codigo.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Final                                                                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+\bibliographystyle{plain}
+\bibliography{memoria}
+\end{document}

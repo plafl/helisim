@@ -1,0 +1,2115 @@
+\chapter{Ecuaciones del modelo}
+De todas las magnitudes asociadas al helicóptero, la mecánica del vuelo se ocupa
+ante todo del desplazamiento y giro del fuselaje del helicóptero, que es lo que
+percibe el piloto. Además de estas magnitudes de interés directo hay
+que incluir aquellos grados de libertad que no siendo el objeto del estudio,
+afectan el comportamiento del helicóptero, por ejemplo, el batimiento de las
+palas o la estela del helicóptero. Una vez hayamos planteado las ecuaciones del
+sistema, agruparemos las variables del problema en un vector de estado $\vec{x}$
+de forma que la evolución del sistema esté dada por una ecuación diferencial de
+la forma:
+
+\begin{equation*}
+	\frac{d\vec{x}}{dt}=\vec{F}(\vec{x},\vec{u})
+\end{equation*}
+
+donde el vector $\vec{u}$ es el vector de control y representa la acción del
+piloto sobre el helicóptero y otras mangitudes externas.
+
+
+Para modelizar el helicóptero lo dividimos en un conjunto de subsistemas, que
+más tarde acoplaremos para dar lugar a nuestro sistema de ecuaciones. De esta
+forma modularizando el modelo es posible más adelante realizar mejoras de
+algunos subsistemas sin tener que modificar el resto. Los subsistemas del
+helicóptero son:
+
+\begin{itemize}
+  \item Rotor principal
+  \item Estela
+  \item Fuselaje
+  \item Rotor de cola
+  \item Grupo motopropulsor
+  \item Estabilizador horizontal
+  \item Estabilizador vertical
+  \item Controles
+  \item Tren de aterrizaje
+\end{itemize}
+
+\section{Vector de estado}
+
+El vector de estado $\vec{x}$ del helicóptero lo forman las 
+siguientes variables:
+
+\begin{itemize}
+	\item $u$: Componente $x$ de la velocidad en ejes cuerpo
+	\item $v$: Componente $y$ de la velocidad en ejes cuerpo
+	\item $w$: Componente $z$ de la velocidad en ejes cuerpo
+	\item $p$: Componente $x$ de la velocidad angular en ejes cuerpo
+	\item $q$: Componente $y$ de la velocidad angular en ejes cuerpo
+	\item $r$: Componente $z$ de la velocidad angular en ejes cuerpo
+	\item $q_0$: Primera componente del cuaternio de rotación
+	\item $q_1$: Segunda componente del cuaternio de rotación
+	\item $q_2$: Tercera componente del cuaternio de rotación
+	\item $q_3$: Cuarta componente del cuaternio de rotación
+	\item $\Omega$: Velocidad de rotación del rotor principal
+	\item $\dot{Q}_1$: Derivada del par de un motor
+	\item $Q_1$: Par de un motor
+	\item $x_I$: Coordenada $x$ de la posición en ejes inerciales
+	\item $y_I$: Coordenada $y$ de la posición en ejes inerciales
+	\item $z_I$: Coordenada $z$ de la posición en ejes inerciales
+\end{itemize}
+
+Además existen una serie de variables externas que es necesario aportar para
+calcular las fuerzas y que forman el vector de control $\vec{u}$:
+
+\begin{itemize}
+	\item $\eta_{0p}$: Control colectivo aplicado por el piloto
+	\item $\eta_{1sp}$: Control longitudinal aplicado por el piloto
+	\item $\eta_{1cp}$: Control lateral aplicado por el piloto
+	\item $\eta_{pp}$: Control de pedales aplicado por el piloto
+	\item $\rho$: Densidad del aire
+	\item $T$: Temperatura del aire
+	\item $h_G$: Altura del suelo
+	\item $u_w$: Componente $x$ en ejes inerciales de la velocidad del viento
+	\item $v_w$: Componente $y$ en ejes inerciales de la velocidad del viento
+	\item $w_w$: Componente $z$ en ejes inerciales de la velocidad del viento
+\end{itemize}
+
+Finalmente el vector de salida hacia el sistema visual está dado por:
+
+\begin{itemize}
+	\item $\lambda$: Latitud en coordenadas geodésicas
+	\item $\phi$: Longitud en coordenadas geodésicas
+	\item $h$: Altura en coordenadas geodésicas
+	\item $\theta$: Ángulo de Euler, cabeceo
+	\item $\phi$: Ángulo de Euler, balance
+	\item $\psi$: Ángulo de Euler, guiñada
+\end{itemize}
+
+
+\section{Rotor principal}
+El rotor se compone de un número $N_b$ de palas, articuladas o no. Debido a las
+fuerzas de inercia y aerodinámicas las palas se deforman, siendo fundamental
+predecir esta deformación para calcular las fuerzas que ejerce el rotor sobre
+el fuselaje. La resolución exacta del movimiento de las palas, incluso
+considerándolas suficientemente alargadas como para aplicar el modelo clásico de
+viga con deformaciones lineales, es muy difícil ya que el problema se encuentra
+acoplado con la aerodinámica de la estela. En nuestro modelo simplificado
+supondremos que el movimiento de las palas se compone de un único grado de
+libertad por pala, su batimiento $\beta$ y que la pala se mueve como sólido
+rígido. A pesar de que obviamente para una pala no articulada esto no es cierto,
+ya que se encuentra empotrada en la cabeza del rotor, constituye una buena
+aproximación excepto dentro de una pequeña región cerca del empotramiento, donde
+simularemos las fuerzas estructurales debido a la curvatura mediante un muelle
+ficticio cuya constante de elasticidad ajustaremos de forma que la frecuencia
+natural de batimiento del modelo simplificado coincida con la primera frecuencia
+de batimiento del sistema real. Para clarificar ideas he aquí la lista de
+aproximaciones utilizadas, de menor a mayor exigencia, y un esquema que compara
+nuestro modelo simplificado con otro más completo:
+\begin{itemize}
+  \item Pala alargada, teoría clásica de vigas
+  \item Deformaciones lineales
+  \item Despreciamos arrastre y torsión, sólo consideramos batimiento
+  \item Consideramos que el batimiento se realiza con la pala rígida
+\end{itemize}
+
+\begin{figure}
+  \input{Figuras/batimiento.pstex_t}
+  \caption{Modelo simplificado de batimiento}
+  \label{batimiento:comparacion}
+\end{figure}
+
+La justificación de esta aproximación se puede realizar a partir de un modelo
+más completo y para nuestra aplicación que trata movimientos de baja frecuencia
+en comparación con la rotación de las palas y amplitudes altas, es suficiente.
+
+\subsection{Cinemática de la pala}
+Para plantear la ecuación de batimiento necesitamos determinar las fuerzas de
+inercia y aerodinámicas que actúan sobre la sección de la pala, por lo que
+necesitamos calcular las aceleraciones y la velocidad relativa al viento de una
+sección.
+
+Sean $\vec{i}_w, \vec{j}_w, \vec{k}_w$ los vectores unitarios asociados a los
+ejes viento del rotor, anteriormente descritos en \ref{sec:ejes rotor-viento}, 
+sea $\psi$ el ángulo que la pala
+ha rotado desde la posición de referencia (azimut) y sea $\beta$ el ángulo de
+batimiento de la pala. Entonces la matriz de cambio de base de ejes viento a
+ejes pala viene dada por:
+
+\begin{equation*}
+	\left\{\begin{array}{c}
+  		\vec{i}_b \\
+		\vec{j}_b \\
+		\vec{k}_b
+	\end{array}\right\} = 
+\left[\begin{array}{ccc}
+  		-\cos\beta & 0 & -\sin\beta \\
+		0 & -1 & 0 \\
+		-\sin\beta & 0 & \cos\beta \\
+	\end{array}\right]
+\left[\begin{array}{ccc}
+  		\cos\psi & \sin\psi & 0 \\
+		\sin\psi & \cos\psi & 0 \\
+		0 & 0 & 1 \\
+	\end{array}\right] 
+\left\{\begin{array}{c}
+  		\vec{i}_w \\
+		\vec{j}_w \\
+		\vec{k}_w \\
+	\end{array}\right\}
+\end{equation*}
+
+Suponiendo $\beta\ll1$ y despreciando términos no lineales, la matriz de cambio
+de base de ejes viento a ejes pala, que denotaremos como $L_{bw}$ queda:
+
+\begin{equation*}
+	L_{bw} = \left[\begin{array}{ccc}
+  		-\cos\psi & \sin\psi & -\beta \\
+		-\sin\psi & \cos\psi & 0 \\
+		-\beta\cos\psi & \beta\sin\psi & 1 \\
+		\end{array}\right]
+\end{equation*}
+
+La posición de una sección de pala arbitraria, a una distancia $r$ del origen
+del rotor, viene dada por:
+
+\begin{equation*}
+	\vec{r}=r\vec{i}_b
+\end{equation*}
+
+Para derivar la velocidad y aceleración de la sección de pala, utilizaremos unos
+ejes auxiliares, los ejes de rotación. La velocidad angular de estos ejes
+respecto a unos ejes inerciales es:
+
+\begin{equation*}
+	\vec{\omega}_1=\omega_x\vec{i}_1 + \omega_y\vec{j}_1 + \omega_z\vec{k}_1
+\end{equation*}
+
+Donde: 
+
+\begin{align*}
+  \omega_x &= p_w\cos\psi - q_w\sin\psi \\
+  \omega_y &= p_w\sin\psi + q_w\cos\psi \\
+  \omega_z &= r_w - \Omega 
+\end{align*}
+
+$p_w$, $q_w$, $r_w$ es la velocidad angular de los ejes viento en ejes viento
+(ver ecuación \ref{eqn:velocidad angular de los ejes viento})
+
+La velocidad del origen de los ejes rotor en ejes viento es (ver ecuación
+\ref{eqn:velocidad relativa al viento del rotor})
+
+\begin{equation*}
+	\vec{V}_0=u_{hrww}\vec{i}_w+w_{hrww}\vec{k}_w
+\end{equation*}
+
+
+Con todos estos datos aplicamos las fórmulas de derivación en ejes no
+inerciales:
+
+\begin{align*}
+  \vec{v} &= \vec{V}_0 + \vec{\omega}_1\wedge\vec{r} +
+  \frac{\partial\vec{r}}{\partial t} \\
+  \vec{a} &= \vec{a}_0 + \vec{\omega}_1\wedge(\vec{\omega}_1\wedge\vec{r}) +
+  \vec{\alpha_1}\wedge\vec{r} +
+  2\vec{\omega_1}\wedge\frac{\partial\vec{r}}{\partial t} +
+  \frac{\partial^2\vec{r}}{\partial t^2}
+\end{align*}
+
+Con lo que las componentes de la velocidad relativa al viento de la sección en ejes palas es:
+
+\begin{align*}
+	u_b &= -\cos\psi u_{hrww} + \beta w_{hrww} \\
+	v_b &= -\sin\psi u_{hrww} + r(-\beta\omega_x + \omega_z) \\
+	w_b &= -\beta\cos\psi u_{hrww} + w_{hrww} + r(\omega_y - \dot{\beta})
+\end{align*}
+
+Para calcular la velocidad de la sección de la pala relativa al viento suponemos una
+velocidad inducida sobre el rotor del tipo:
+
+\begin{align*}
+	\lambda(\bar{r}, \psi, \bar{t}) &= \lambda_0(\bar{t}) + \bar{r}\lambda_1(\bar{t}) \\
+	\lambda_1(\psi, \bar{t}) &= \lambda_{1cw}(\bar{t})\cos\psi +
+	\lambda_{1sw}(\bar{t})\sin\psi 
+\end{align*}
+
+Donde $\lambda = \frac{v_i}{\Omega R}$ es la velocidad inducida
+adimensionalizada, y se toma positiva según el eje $z_w$ (hacia abajo).
+En la sección dedicada al modelado de la estela calcularemos las ecuaciones que
+nos determinan la anterior velocidad, dejándola de momento como una incógnita en
+las ecuaciones del batimiento.
+
+Las componentes de la velocidad relativa al viento, ya adimensionalizadas con
+$\Omega R$ valen:
+
+\begin{align*}
+  \bar{U}_T &= \bar{r}(1 + \bar{\omega}_x\beta) + \mu\sin\psi \\
+  \bar{U}_P &= \mu_z - \lambda_0 - \beta\mu\cos\psi + \bar{r}(\bar{\omega_y} -
+  \beta^* - \lambda_1) 
+\end{align*}
+
+El asterisco indica derivación respecto al tiempo adimensional y 
+\begin{align*}
+	\mu &= \frac{u_{hrww}}{\Omega R} \\
+	\mu_z &= \frac{w_{hrww}}{\Omega R} \\
+\end{align*}	
+son respectivamente el parámetro de avance y el parámetro de descenso. Para ver
+el significado de $U_P$ y $U_T$ ver figura \ref{fig:perfil}. 
+
+También obtenemos la aceleración de un elemento de pala, donde despreciamos los
+términos no lineales en la velocidad angular (de nuevo limitamos el modelo a las
+zonas de baja frecuencia), la aceleración del helicóptero y la componente de la
+velocidad angular $r_w$. De las componentes de la aceleración sólo nos interesa 
+$a_{zb}$, ya que el resto no las vamos a incluir en las resultantes sobre la pala, 
+de todas formas por completitud y pensando en mejoras futuras del modelo he aquí 
+todas las componentes:
+
+\begin{align*}
+  a_{xb} &= r(-\Omega^2 + 2\dot{\beta}\omega_y - 2\Omega\beta\omega_x) \\
+  a_{yb} &= -\omega_y\Omega - \beta\dot{\omega}_x + \dot{\omega}_z -
+  2\dot{\beta}(\omega_x + \omega_z\beta) \\
+  a_{zb} &= r\left[2\Omega\left\{\left(p_w + \frac{q^*_w}{2}\right)\cos\psi +
+  \left(-q_w + \frac{p^*_w}{2}\right)\sin\psi\right\} - \Omega^2\beta -
+  \ddot{\beta}\right] 
+\end{align*}
+
+\subsection{Fuerzas aerodinámicas}
+Suponiendo ángulos pequeños de ataque, aplicamos la teoría linealizada de
+perfiles (ver figura \ref{fig:perfil}).
+
+\begin{figure}
+  \input{Figuras/perfil.pstex_t}
+  \caption{Fuerzas aerodinámicas sobre el perfil}
+  \label{fig:perfil}
+\end{figure}
+
+La sustentación y resistencia de la pala por unidad de longitud es:
+
+\begin{align*}
+  l &= \frac{1}{2}\rho\left(U^2_T + U^2_P\right)ca_0c_L \\
+  d &= \frac{1}{2}\rho\left(U^2_T + U^2_P\right)c\delta
+\end{align*}
+
+Aproximamos los coeficientes:
+\begin{align*}
+  c_L &= a_0\left(\theta + \phi\right) \\
+  \phi &\simeq \frac{U_P}{U_T} \\
+  \delta &= \delta_0 + \delta_2c_L^2
+\end{align*}
+
+Además aproximaremos el coeficiente de resistencia por un coeficiente de
+resistencia medio:
+\begin{equation*}
+	\delta = \delta_0 + \delta_1c_T + \delta_2c_T^2 
+\end{equation*}
+donde $c_T$ es el coeficiente de tracción del rotor (Ver páginas 54-55 de
+\cite{Johnson:book})
+
+Proyectando la sustentación y resistencia sobre los ejes pala, y aplicando las
+siguientes aproximaciones:
+
+\begin{align*}
+  U_T^2 + U_P^2 &\simeq U_T^2 \\
+  f_z = -\left(l\cos\phi + d\sin\phi\right) &\simeq -l - d\phi \simeq-l \\
+  f_y = d\cos\phi - l\sin\phi &\simeq d - l\phi
+  \label{eqn:f_aer}
+\end{align*}
+
+Desarrollando un poco más podemos poner estas fuerzas aerodinámicas en función
+de las velocidades adimensionalizadas:
+
+\begin{align*}
+  f_z &= -\frac{\rho ca_0\left(\Omega R\right)^2}{2}\left(\bar{U}^2_T\theta +
+  \bar{U}_T\bar{U}_P\right) \\
+  f_y &= -\frac{\rho ca_0\left(\Omega
+  R\right)^2}{2}\left(\bar{U}_P\bar{U}_T\theta + \bar{U}_P^2 -
+  \frac{\bar{U}_T^2\delta}{a_0}\right)
+\end{align*}
+
+\subsection{Ecuación de batimiento}
+\subsubsection{Ecuación de batimiento para las palas individuales}
+Aplicamos la ecuación de momentos sobre la articulación o empotramiento de la
+pala en el eje del rotor:
+
+\begin{equation*}
+	\int_0^2r\left(f_z - ma_{zb}\right)dr + K_\beta\beta = 0
+\end{equation*}
+
+De ahora en adelante utilizamos las siguientes definiciones:
+\begin{align*}
+  I_\beta &= \int_0^Rmr^2dr&  
+  \lambda^2_\beta &= 1 + \frac{K_\beta}{I_\beta\Omega^2} \\
+  \bar{p}_w &= \frac{p_w}{\Omega} &
+  \bar{q}_w &= \frac{q_w}{\Omega} \\
+  \bar{p}^*_w &= \frac{d\bar{p}_w}{d\bar{t}} = \frac{\dot{p}_w}{\Omega^2}&
+  \bar{q}^*_w &= \frac{d\bar{q}_w}{d\bar{t}} = \frac{\dot{q}_w}{\Omega^2} \\
+  \gamma &= \frac{\rho ca_0R^4}{I_\beta}&
+  \bar{r} &= \frac{r}{R} 
+  \label{eqn:definiciones batimiento}
+\end{align*}
+
+En general, una barra sobre la variable significa que está adimensionalizada, un
+punto, que es la derivada respecto al tiempo, y un asterisco que es la derivada
+respecto al tiempo adimensional $\bar{t}=t\Omega$. La ecuación de batimiento
+para la i-ésima pala queda entonces:
+
+\begin{multline*}
+	{\beta_{i}}^{**} + \lambda_\beta^2\beta_i = 2\left[\left(\bar{p}_w +
+	\frac{\bar{q}^*_w}{2}\right)\cos\psi_i - \left(\bar{q}_w -
+	\frac{\bar{p}^*_w}{2}\right)\sin\psi_i\right] + \\
+	+ \frac{\gamma}{2}\int^1_0\left(\bar{U}_{T_i}^2\theta_i +
+	\bar{U}_{P_i}\bar{U}_{T_i}\right)\bar{r}d\bar{r}
+\end{multline*}
+
+Tenemos $N_b$ ecuaciones como la anterior, 
+una por cada pala del helicóptero.
+
+Merece la pena discutir el significado en la ecuación de algunos coeficientes
+que aparecen en las ecuaciones y sus valores típicos:
+\begin{itemize}
+  \item $\lambda_\beta$ es la frecuencia natural de batimiento de las palas
+    (adimensionalizada con $\Omega$) y debido a la gran velocidad de rotación de
+    las palas y la inercia de batimiento se encuentra próxima a uno. Valores
+    típicos suelen ser del orden de 1.1 . Debido a que las fuerzas aerodinámicas
+    se encuentran controladas por el paso de las palas, y éste se aplica con
+    la frecuencia de giro del rotor, las palas se encuentran excitadas muy
+    próximas a su resonancia, lo que tiene dos consecuencias: primero, que el
+    sistema de control de paso es muy efectivo y segundo, que hay un desfase muy
+    próximo a 90º entre paso y batimiento.
+  \item $\gamma$ es el número de Locke y da una idea de la relación fuerzas
+    aerodinámicas/fuerzas de inercia, valores típicos caen entre 5 y 7.
+\end{itemize}
+
+Sustituyendo las expresiones para le velocidad relativa al viento obtenemos una
+ecuación de coeficientes periódicos para cada pala del rotor:
+
+\begin{equation*}
+\begin{split}
+	M& = \frac{1}{2}\int_0^1{\left(\bar{U}_{T}^2\theta +
+	\bar{U}_{P}\bar{U}_{T}\right)\bar{r}d\bar{r}} \\
+	&=M_\beta\beta + M_{\beta^*}\beta^* + \\
+	&\quad M_{\theta_0}\theta_0 + M_{\theta_t}\theta_t +
+	M_{\theta_{1cw}}\theta_{1cw} + M_{\theta_{1sw}}\theta_{1sw} + \\
+	&\quad M_{\bar{p}_w}\bar{p}_w + M_{\bar{q}_w}\bar{q}_w + \\
+	&\quad M_{\lambda_0}(\mu_z - \lambda_0) + M_{\lambda_{1cw}}\lambda_{1cw} + 
+	M_{\lambda_{1sw}}\lambda_{1sw} 
+\end{split}
+\end{equation*}
+
+Donde los coeficientes anteriores son función únicamente de $\psi$ y de $\mu$ y
+vienen dados por:
+
+\begin{align*}
+	M_{\beta} &= -\mu\left(\frac{1}{6}\cos\psi +
+	\frac{\mu}{8}\sin2\psi\right) \notag\\
+	M_{\beta^*} &= -\left(\frac{1}{8} + \frac{\mu}{6}\sin\psi\right) \notag\\
+	M_{\lambda_0} &= \frac{1}{6} + \frac{\mu}{4}\sin\psi \notag\\
+	M_{\lambda_{1cw}} &= -\left(\frac{1}{8}\cos\psi +
+	\frac{\mu}{12}\sin2\psi\right) \notag\\
+	M_{\lambda_{1sw}} &= -\frac{\mu}{12} -\frac{1}{8}\sin\psi +
+	\frac{1}{12}\cos2\psi \\
+	M_{\bar{p}_w} &= -M_{\lambda_{1sw}} \notag\\
+	M_{\bar{q}_w} &= -M_{\lambda_{1cw}} \notag\\
+	M_{\theta_0} &= \frac{1}{8}(1 + \mu^2) + \frac{1}{3}\mu\sin\psi -
+	\frac{\mu^2}{8}\cos2\psi \notag\\
+	M_{\theta_t} &= \frac{1}{10} + \frac{\mu^2}{12} + \frac{\mu}{4}\sin\psi -
+	\frac{\mu^2}{12}\cos2\psi \notag\\
+	M_{\theta_{1cw}} &= \left(\frac{1}{8} + \frac{\mu^2}{16}\right)\cos\psi
+	+ \frac{\mu}{6}\sin2\psi - \frac{\mu^2}{16}\cos3\psi  \notag\\
+	M_{\theta_{1sw}} &= \frac{\mu}{6} + \left(\frac{1}{8} +
+	\frac{3}{16}\mu^2\right)\sin\psi - \frac{\mu}{6}\cos2\psi -
+	\frac{1}{16}\sin3\psi\notag 
+	\label{eqn:coeficientes M}
+\end{align*}
+
+\subsubsection{Ecuación de batimiento en coordenadas multipala}
+Transformamos el sistema de ecuaciones de las palas individuales a coordenadas
+multipala, que para un rotor de cuatro palas se encuentran definidas de la forma:
+
+\begin{align*}
+	\beta_0 &= \frac{1}{4}\sum_{i=1}^{4}{\beta_i} \\
+	\beta_d &= \frac{1}{4}\sum_{i=1}^{4}{\beta_i(-1)^2} \\
+	\beta_{1cw} &= \frac{1}{2}\sum_{i=1}^{4}{\beta_i\cos\psi_i} \\
+	\beta_{1sw} &= \frac{1}{2}\sum_{i=1}^{4}{\beta_i\sin\psi_i}
+\end{align*}
+
+Si agrupamos los batimientos de las palas y las coordenadas multipala en dos
+vectores:
+
+\begin{align*}
+	\beta_I &= \left\{\begin{array}{c}
+		\beta_1 \\
+		\beta_2 \\
+		\beta_3 \\
+		\beta_4 
+	\end{array}\right\}&
+	\beta_M &= \left\{\begin{array}{c}
+		\beta_0 \\
+		\beta_d \\
+		\beta_{1cw} \\
+		\beta_{1sw}
+	\end{array}\right\}
+\end{align*}
+
+Podemos escribir las anteriores transformaciones en forma matricial:
+\begin{equation*}
+	\vec{\beta}_I = L_\beta\vec{\beta}_M
+\end{equation*}
+Donde la anterior matriz de cambio de coordenadas es:
+
+\begin{align*}
+	L_\beta &= \left[\begin{array}{cccc}
+		1 & -1 & \cos\bar{t} & \sin\bar{t} \\
+		1 & 1 & -\sin\bar{t} & \cos\bar{t} \\
+		1 & -1 & -\cos\bar{t} & -\sin\bar{t} \\
+		1 & 1 & \sin\bar{t} & -\cos\bar{t} 
+	\end{array}\right] \\
+	L_\beta^{-1} &= \frac{1}{4}\left[\begin{array}{cccc}
+		1 & 1 & 1 & 1 \\
+		-1 & 1 & -1 & 1 \\
+		2\cos\bar{t} & -2\sin\bar{t} & -2\cos\bar{t} & 2\sin\bar{t} \\
+		2\sin\bar{t} & 2\cos\bar{t} & -2\sin\bar{t} & -2\cos\bar{t} 
+	\end{array}\right]
+\end{align*}
+
+Agrupamos también en vectores las siguientes magnitudes:
+
+\begin{align}
+    \label{eq:vectores}
+	\vec{\theta} &= \left\{\begin{array}{c}
+		\theta_0 \\
+		\theta_t \\
+		\theta_{1sw} \\
+		\theta_{1cw} 
+	\end{array}\right\}& 
+	\vec{\lambda} &= \left\{\begin{array}{c}
+		\lambda_{1sw} \\
+		\lambda_{1cw}
+	\end{array}\right\} \\
+	\vec{\omega} &= \left\{\begin{array}{c}
+		\bar{p}_w \\
+		\bar{q}_w 
+	\end{array}\right\}&
+	\vec{\omega}^* &= \left\{\begin{array}{c}
+		\bar{p}_w^* \\
+		\bar{q}_w^* 
+	\end{array}\right\} \notag
+\end{align}	
+
+La ecuación de batimiento en coordenadas multipala es entonces:
+\begin{multline*}
+	\vec{\beta}_M^{**} + C_M\vec{\beta}_M^* +
+	D_M\vec{\beta_M} = \\
+	H_{M_\theta}\vec{\theta} + H_{M_\lambda}\vec{\lambda}
+	+ \vec{H}_{M_{\lambda_0}}\left(\mu_z - \lambda_0\right) +
+	H_{M_\omega}\vec{\omega} + H_{M_{\omega^*}}\vec{\omega}^*
+\end{multline*}
+
+Las anteriores matrices valen:
+
+\begin{align*}
+	C_M&= \frac{\gamma}{8}\left[\begin{array}{cccc}
+		1 & 0 & 0 & \frac{2}{3}\mu \\
+		0 & 1 & -\frac{2}{3}\mu\sin2\bar{t} & \frac{2}{3}\mu\cos2\bar{t}\\
+		0 & -\frac{4}{3}\mu\sin2\bar{t} & 1 & \frac{16}{\gamma} \\
+		\frac{4}{3}\mu & \frac{4}{3}\mu\cos2\bar{t} & -\frac{16}{\gamma}
+		& 1 
+	\end{array}\right] \\
+	D_M&= \frac{\gamma}{8}\left[\begin{array}{cccc}
+		% primera fila
+		\frac{8\lambda_\beta^2}{\gamma} &
+		-\mu^2\sin2\bar{t} &
+		0 &
+		0 \\
+		% segunda fila
+		-\mu^2\sin2\bar{t} &
+		\frac{8\lambda_\beta^2}{\gamma} &
+		-\frac{4}{3}\mu\cos2\bar{t} &
+		-\frac{4}{3}\mu\sin2\bar{t} \\
+		% tercera fila
+		\frac{4}{3}\mu & 
+		-\frac{4}{3}\mu\cos2\bar{t} &
+		\frac{8}{\gamma}(\lambda_\beta^2 - 1) +
+		\frac{\mu^2}{2}\sin2\bar{t} &
+		 1 + \frac{\mu^2}{2} -\frac{\mu^2}{2}\cos2\bar{t} \\
+		% cuarta fila
+		0 & 
+		-\frac{4}{3}\mu\sin2\bar{t} &
+		 -1 + \frac{\mu^2}{2} -\frac{\mu^2}{2}\cos2\bar{t} &
+		\frac{8}{\gamma}(\lambda_\beta^2 - 1) -
+		\frac{\mu^2}{2}\sin2\bar{t} 
+	\end{array}\right]\\
+	H_{M_\theta}&= \frac{\gamma}{8}\left[\begin{array}{cccc}
+		%primera fila
+		1 + \mu^2 &
+		\frac{4}{5} + \frac{2}{3}\mu^2 &
+		\frac{4}{3}\mu &
+		0 \\
+		% segunda fila 
+		\mu^2\cos2\bar{t} &
+		\frac{2}{3}\mu^2\cos2\bar{t} &
+		\frac{4}{3}\mu\cos2\bar{t} &
+		-\frac{4}{3}\mu\sin2\bar{t} \\
+		% tercer fila
+		0 &
+		0 &
+		-\frac{1}{2}\sin4\bar{t} &
+		1 + \frac{\mu^2}{2} - \frac{\mu^2}{2}\cos4\bar{t} \\
+		% cuarta file
+		\frac{8}{3}\mu &
+		2\mu &
+		1 + \frac{3}{2}\mu^2 + \frac{1}{16}\cos4\bar{t}&
+		-\frac{\mu^2}{2}\sin4\bar{t} 
+	\end{array}\right]\\
+	\vec{H}_{M_{\lambda_0}}&= \frac{\gamma}{8}\left\{\begin{array}{c}
+		\frac{4}{3} \\
+		0 \\
+		0 \\
+		2\mu
+	\end{array}\right\}\\
+	H_{M_\lambda}&= \frac{\gamma}{8}\left[\begin{array}{cc}
+		-\frac{2}{3}\mu & 0 \\
+		-\frac{2}{3}\cos2\bar{t} & \frac{2}{3}\mu\sin2\bar{t} \\
+		0 & -1 \\
+		-1 & 0 
+	\end{array}\right]\\
+	H_{M_\omega}&= \frac{\gamma}{8}\left[\begin{array}{cc}
+		\frac{2}{3}\mu & 0 \\
+		\frac{2}{3}\cos2\bar{t} & -\frac{2}{3}\mu\sin2\bar{t} \\
+		\frac{16}{\gamma} & 1 \\
+		1 & -\frac{16}{\gamma} 
+	\end{array}\right]\\
+	H_{M_{\omega^*}}&= \left[\begin{array}{cc}
+		0 & 0 \\
+		0 & 0 \\
+		0 & 1 \\
+		1 & 0 
+	\end{array}\right]
+\end{align*}
+
+Aplicamos las siguientes simplificaciones:
+\begin{itemize}
+  \item Suponemos que respecto al rotor el fuselaje se mueve suficientemente 
+	  lento como para suponer valores estacionarios de velocidad angular,
+	  coeficiente de avance, etc\ldots. 
+  \item Eliminamos los coeficientes periódicos, quedándonos con un sistema de
+	ecuaciones diferenciales en coeficientes constantes.
+  \item Sustituimos el sistema de ecuaciones diferenciales por la solución 
+	  estacionaria. Para que esto sea justificable es necesario que se cumpla la
+	  hipótesis de que los autovalores del rotor y del fuselaje se encuentren
+	  suficientemente separados, en cuyo caso el rotor sólo influye al fuselaje a
+	  través de su solución estacionaria. Al realizar esta simplificación también
+	  suponemos velocidad inducida estacionaria.
+\end{itemize}
+
+Finalmente obtenemos la siguiente ecuación de batimiento:
+
+\begin{equation*}
+	A_{\beta\beta}\vec{\beta} + A_{\beta\lambda}\vec{\lambda} =
+	A_{\beta\theta}\vec{\theta} + A_{\beta\omega}\omega +
+	A_{\beta\dot{\omega}}\dot{\vec{\omega}} +
+	\vec{A}_{\beta\lambda_0}\left(\mu_z-\lambda_0\right)
+\end{equation*}
+
+Donde las anteriores matrices valen:
+
+\begin{align*}
+	A_{\beta\beta} &= \left[\begin{array}{cccc}
+		\frac{8\lambda_\beta^2}{\gamma} & 0 & 0 \\
+		\frac{4}{3}\mu & \frac{8\left(\lambda_\beta^2-1\right)}{\gamma}
+		& 1 + \frac{\mu^2}{2} \\
+		0 & -\left(1-\frac{\mu^2}{2}\right) &
+		\frac{8\left(\lambda_\beta^2-1\right)}{\gamma} 
+	\end{array}\right] \\
+	A_{\beta\lambda} &= \left[\begin{array}{cc}
+		\frac{2}{3}\mu & 0 \\
+		0 & 1 \\
+		1 & 0 
+	\end{array}\right] \\
+	A_{\beta\theta} &= \left[\begin{array}{cccc}
+		1 + \mu^2 & 4\left(\frac{1}{5} + \frac{\mu^2}{6}\right) &
+		\frac{4}{3}\mu & 0 \\
+		0 & 0 & 0 & 1+\frac{\mu^2}{2} \\
+		\frac{8}{3}\mu & 2\mu & 1+\frac{3}{2}\mu^2 & 0 
+	\end{array}\right] \\
+	A_{\beta\dot{\omega}} &= \left[\begin{array}{cc}
+		0 & 0 \\
+		0 & \frac{8}{\gamma} \\
+		\frac{8}{\gamma} & 0 
+	\end{array}\right] \\
+	A_{\beta\omega} &= \left[\begin{array}{cc}
+		\frac{2}{3}\mu & 0 \\
+		\frac{16}{\gamma} & 1 \\
+		1 & -\frac{16}{\gamma}
+	\end{array}\right] \\
+	\vec{A}_{\beta\lambda_0} &= \left\{\begin{array}{c}
+		\frac{4}{3} \\
+		0 \\
+		2\mu 
+	\end{array}\right\}
+\end{align*}
+
+Y $\vec{\beta}$ no contiene a $\beta_d$ que es nulo:
+
+\begin{equation}
+	\vec{\beta} = \left\{\begin{array}{c}
+		\beta_0 \\
+		\beta_{1cw} \\
+		\beta_{1sw} 
+	\end{array}\right\} \\
+    \label{eq:vector batimiento}
+\end{equation}
+
+que es un sistema de ecuaciones lineales (porque las hemos linealizado) que nos
+liga el control, la velocidad inducida y la velocidad y aceleración angular con
+el batimiento de las palas.
+
+La anterior ecuación todavía no puede ser resuelta ya que desconocemos los
+valores de la velocidad inducida. De hecho, dichos valores dependen de los
+momentos sobre las palas, que a su vez dependen del batimiento, por lo que
+necesitamos completar la anterior ecuación de batimiento más adelante para
+resolver conjuntamente con las ecuaciones de la velocidad inducida. 
+
+\subsection{Fuerzas del Rotor}
+\label{sec: fuerzas rotor}
+Integrando para cada pala las fuerzas que actúan sobre cada perfil, obtenemos
+las resultantes sobre el rotor. Despreciando las aceleraciones de inercia en
+cada sección por cancelarse al integrar sobre todas las palas los términos
+significativos, las resultantes dependen únicamente de las fuerzas
+aerodinámicas:
+
+\begin{align*}
+	X_{hw} &= \sum_{i=1}^{N_b}\int_0^R\left\{-f_{z_i}\beta_i\cos(\psi_i) - 
+	f_{y_i}\sin(\psi_i)\right\}dr\\
+	Y_{hw} &= \sum_{i=1}^{N_b}\int_0^R\left\{f_{z_i}\beta_i\sin(\psi_i) - 
+	f_{y_i}\cos(\psi_i)\right\}dr\\
+	Z_{hw} &= \sum_{i=1}^{N_b}\int_0^Rf_{z_i}dr
+\end{align*}
+
+
+Desarrollando las anteriores expresiones y llamando:
+
+\begin{align*}
+	F^{(1)}(\psi_i) &= \int_0^1{\left[\bar{U}_T^2\theta_i + 
+	\bar{U}_P\bar{U}_T\right]d\bar{r}} \\
+	F^{(2)}(\psi_i) &= \int_0^1{\left[\bar{U}_P\bar{U}_T\theta_i + 
+	\bar{U}_P^2 - \frac{\delta_i\bar{U}_T^2}{a_0}\right] d\bar{r}} \\
+\end{align*}
+
+tenemos para los coeficientes de fuerzas:
+
+\begin{align*}
+	C_{xw} &= \frac{X_{hw}}{\frac{1}{2}\rho(\Omega R)^2\pi R^2} \\ 
+	C_{yw} &= \frac{Y_{hw}}{\frac{1}{2}\rho(\Omega R)^2\pi R^2} \\ 
+	C_{zw} &= \frac{Z_{hw}}{\frac{1}{2}\rho(\Omega R)^2\pi R^2} 
+\end{align*}
+
+las siguientes expresiones donde se han eliminado términos no estacionarios:
+
+\begin{align*}
+	\left(\frac{2C_{xw}}{a_0s}\right) &= 
+	\left(\frac{F_0^{(1)}}{2} + \frac{F_{2c}^{(1)}}{4}\right)\beta_{1cw} +
+	\frac{F_{1c}^{(1)}}{2}\beta_0 + \frac{F_{2s}^{(1)}}{4}\beta_{1sw} + \frac{F_{1s}^{(2)}}{2} \\
+	\left(\frac{2C_{yw}}{a_0s}\right) &= 
+	\left(-\frac{F_0^{(1)}}{2} + \frac{F_{2c}^{(1)}}{4}\right)\beta_{1sw} -
+	\frac{F_{1s}^{(1)}}{2}\beta_0 - \frac{F_{2s}^{(1)}}{4}\beta_{1cw} + \frac{F_{1c}^{(2)}}{2} \\
+	\left(\frac{2C_{zw}}{a_0s}\right) &= -F_0^{(1)}
+\end{align*}
+
+Los términos armónicos de las funciones $F^{(1)}$ y $F^{(2)}$ valen:
+\begin{align*}
+	F_0^{(1)} &= \theta_0\left(\frac{1}{3} + \frac{\mu^2}{2}\right) + 
+	\frac{\mu}{2}\left(\theta_{1sw} + \frac{\bar{p}_w}{2}\right) + \frac{\mu_z
+	- \lambda_0}{2} + \frac{1}{4}\left(1 + \mu^2\right)\theta_t \\
+	F_{1s}^{(1)} &= \frac{\alpha_{1sw}}{3} + \mu\left(\theta_0 + \mu_z
+	- \lambda_0 + \frac{2}{3}\theta_t\right) \\
+	F_{1c}^{(1)} &= \frac{\alpha_{1cw}}{3} - \mu\frac{\beta_0}{2} \\
+	F_{2s}^{(1)} &= \frac{\mu}{2}\left[\frac{\alpha_{1cw}}{2} +
+	\frac{\theta_{1cw} - \beta_{1sw}}{2} - \mu\beta_0\right] \\
+	F_{2c}^{(1)} &= -\frac{\mu}{2}\left[\frac{\alpha_{1sw}}{2} +
+	\frac{\theta_{1sw} + \beta_{1cw}}{2} + \mu\left(\theta_0 +
+	\frac{\theta_t}{2}\right)\right]
+\end{align*}
+\begin{align*}
+	F_{1s}^{(2)} &= \frac{\mu^2}{2}\beta_0\beta_{1sw} + \left(\mu_z -
+	\lambda_0 -
+	\frac{\mu}{4}\beta_{1cw}\right)\left(\alpha_{1sw}-\theta_{1sw}\right) -
+	\frac{\mu}{4}\beta_{1sw}\left(\alpha_{1cw}-\theta_{1cw}\right) \\
+	& + \theta_0\left[\frac{\alpha_{1sw} - \theta_{1sw}}{3} +
+	\mu\left(\mu_z-\lambda_0\right)-\frac{\mu^2}{4}\beta_{1cw}\right] \\
+	& + \theta_t\left[\frac{\alpha_{1sw} - \theta_{1sw}}{4} +
+	\frac{\mu}{2}\left(\mu_z - \lambda_0 -
+	\frac{\beta_{1cw}\mu}{4}\right)\right] \\
+	& + \theta_{1sw}\left[\frac{\mu_z - \lambda_0}{2} +
+	\mu\left(\frac{3}{8}(\bar{p}_w - \lambda_{1sw}) +
+	\frac{\beta_{1cw}}{4}\right)\right] \\
+	& + \theta_{1cw}\frac{\mu}{4}\left(\frac{\bar{q}_w - \lambda_{1cw}}{2} -
+	\beta_{1sw} - \mu\beta_0\right) \\
+	& - \frac{\delta\mu}{a_0} \\
+	F_{1c}^{(2)} &= (\alpha_{1cw} - \theta_{1cw} - 2\beta_0\mu)\left(\mu_z
+	- \lambda_0 - \frac{3}{4}\mu\beta_{1cw}\right) -
+	\frac{\mu}{4}\beta_{1cw}(\alpha_{1sw} - \theta_{1sw}) \\
+	& + \theta_0\left[\frac{\alpha_{1cw} - \theta_{1cw}}{3} -
+	\frac{\mu}{2}\left(\beta_0 + \frac{\mu}{2}\beta_{1sw}\right)\right] \\
+	& + \theta_t\left[\frac{\alpha_{1cw}-\theta_{1cw}}{4} -
+	\mu\left(\frac{\beta_0}{3} + \frac{\beta_{1sw}\mu}{8}\right)\right] \\
+	& + \theta_{1cw}\left[\frac{\mu_z - \lambda_0}{2} +
+	\frac{\mu}{4}\left(\frac{\bar{p}_w - \lambda_{1sw}}{2} -
+	\beta_{1cw}\right)\right] \\
+	& +\theta_{1sw}\frac{\mu}{4}\left(\frac{\bar{q}_w - \lambda_{1cw}}{2} -
+	\beta_{1sw} - \mu\beta_0\right)
+\end{align*}
+
+Donde los ángulos efectivos de ataque de la pala son:
+
+\begin{align*}
+	\alpha_{1sw} &= \bar{p}_w - \lambda_{1sw} + \beta_{1cw} + \theta_{1sw}
+	\\
+	\alpha_{1cw} &= \bar{q}_w - \lambda_{1cw} - \beta_{1sw} + \theta_{1cw}
+\end{align*}
+
+Las resultantes de momentos son más sencillas, se pueden obtener directamente de
+la acción del muelle equivalente y del par del rotor:
+
+\begin{align*}
+	L_{hw} &= -\frac{N_b}{2}K_\beta\beta_{1sw} - \frac{Q_R}{2}\beta_{1cw}\\
+	M_{hw} &= -\frac{N_b}{2}K_\beta\beta_{1cw} + \frac{Q_R}{2}\beta_{1sw}
+\end{align*}
+
+El par sobre el rotor:
+
+\begin{align*}
+  N_h &= \sum_{i=1}^{N_b}\int_0^R r_b\left(f_y - ma_{yb}\right)_idr_b
+\end{align*}
+
+De forma aproximada podemos escribir para el coeficiente de par aerodinámico:
+
+\begin{equation*}
+	\frac{2C_Q}{a_0s} = -(\mu_z - \lambda_0)\left(\frac{2c_T}{a_0s}\right) +
+	\mu\left(\frac{2C_{xw}}{a_0s}\right) +
+	\frac{\delta}{4a_0}\left(1 + 3\mu^2\right)
+\end{equation*}
+
+El par total queda:
+\begin{equation*}
+    N_h = \frac{1}{2}\rho(\Omega R)^2\pi R^2 c_Q + I_{rt}\dot{\Omega}
+\end{equation*}
+
+Donde $I_{rt}$ es el momento de inercia del rotor y sistema de transmisión 
+respecto al eje de rotación.
+
+\section{Estela}
+En la anterior sección determinamos los movimientos y fuerzas que actúan sobre
+el rotor principal pero dejamos sin calcular la velocidad inducida por la
+estela
+en el plano del rotor. A continuación calculamos dicha velocidad y resolvemos
+finalmente el batimiento y la velocidad inducida simultáneamente.
+
+A continuación se calculan expresiones que permiten calcular la velocidad inducida 
+media basándose en la Teoría de la Cantidad de Movimiento Modificada 
+(TCMM) y la teoría del elemento pala (ver \cite{LopezRuiz}). Para calcular el 
+efecto suelo teniendo en cuenta la velocidad de avance del helicóptero nos 
+basamos en \cite{RM3021}. Por último mejoramos la aproximación de velocidad uniforme 
+mediante el modelo de estela de Pitt-Peters, ver \cite{PittPeters1} y
+\cite{PittPeters2}. 
+
+\subsection{TCMM}
+Utilizamos la TCMM para eliminar el problema de soluciones múltiples en vuelo de
+descenso a baja velocidad. La TCMM nos proporciona una relación entre la
+sustentación y la velocidad inducida:
+
+\begin{equation*}
+	T=2\rho S\sqrt{\frac{1}{k_\nu^2}V_x^2+\left(\frac{1}{k_\nu^2}-
+	\frac{1}{k_i^2}\right)V_z^2+\frac{1}{k_i^2}\left(V_z-v_i\right)^2}
+	\frac{v_i}{k_i}
+\end{equation*}
+
+Donde las constantes $k_i$ y $k_\nu$ se determinan experimentalmente para
+obtener los valores esperados en autorrotación y en molinete frenante, y valen:
+
+\begin{align*}
+	k_i &= \left(\frac{9}{5}\right)^\frac{1}{4} \\
+	k_\nu &= \left(\frac{5}{4}\right)^\frac{1}{4} 
+\end{align*}
+
+Y $T$ representa la tracción media del rotor, que calcularemos mediante la
+teoría del elemento pala, más adelante.
+
+\subsection{Efecto suelo}
+A continuación se describe el modelado del efecto suelo, explicando un poco más
+detalladamente los resultados de \cite{RM3021}.
+
+\subsubsection{Efecto suelo en vuelo a punto fijo}
+Sustituimos el rotor por un manantial de intensidad tal que el flujo del
+manantial sea el mismo que el del rotor. De aquí en adelante, de igual forma que
+en la referencia, suponemos que manantial es cualquier solución elemental de la
+ecuación del potencial de velocidades tal que la velocidad es radial, es decir,
+la velocidad en un punto tiene la misma dirección que la recta que une el origen
+del manantial con el punto. La velocidad inducida a una distancia $r$ del
+manantial es:
+
+\begin{equation*}
+	V=\frac{Av_i}{4\pi r^2}
+\end{equation*}
+
+Donde $v_i$ es la velocidad inducida en el plano del rotor y $A=\pi R^2$ es el área del
+rotor.
+
+Si el rotor se encuentra a una altura $z$ sobre el suelo situamos un rotor 
+imagen a una distancia $2z$ del rotor del helicóptero, entonces la velocidad en
+el rotor será la inducida $v_i$ menos la que induce el rotor imagen:
+
+\begin{equation*}
+	\delta V=\frac{v_iR^2}{16z^2}
+\end{equation*}
+
+Por lo que finalmente:
+
+\begin{equation*}
+	v_{iG}=v_i\left(1-\frac{1}{16\left(\frac{z}{R}\right)^2}\right) 
+\end{equation*}
+
+Donde $v_{iG}$ representa la velocidad inducida teniendo en cuenta el efecto
+suelo, en contraposición con la velocidad inducida sin tener en cuenta el efecto
+suelo $v_i$.
+
+\subsubsection{Efecto suelo en vuelo de avance}
+Supongamos el rotor a una distancia $z$ del suelo, inclinado respecto a la
+horizontal un ángulo $i$ y con una velocidad de avance $V$. $v_i$ es la
+velocidad inducida por el rotor normal al plano del rotor, $\theta$ es el ángulo
+que forma la velocidad resultante de la velocidad de avance y la inducida con la
+normal al rotor (para $i$ pequeño aproximadamente $\arctan\frac{V}{v_i}$), 
+$V_M$ es la velocidad inducida por un manantial que definiremos
+más adelante, $r$ la distancia medida desde centro del rotor y $\alpha$ un
+ángulo medido a partir de la resultante, tal como se indica en la figura.
+
+\begin{figure}
+  \input{Figuras/efecto_suelo.pstex_t}
+  \caption{Definición de magnitudes}
+  \label{modelo:efecto suelo}
+\end{figure}
+
+Sustituimos el rotor por un manantial de la forma:
+
+\begin{equation*}
+	V_M=\frac{Q}{r^2}\cos^n\alpha
+\end{equation*}
+
+Donde las constantes $Q$ (intensidad del manantial) y $n\geq1$ están todavía por
+determinar, para lo cual calculamos el flujo a través de una esfera que contenga
+al manantial y suponemos que el flujo del manantial es proporcional al del
+rotor. El valor más pequeño de $n$ para el cual obtenemos flujo no nulo
+es 2, en cuyo caso el flujo a través de cualquier esfera es $\frac{4\pi Q}{3}$.
+Igualando dicho flujo al flujo a través del rotor por una constante $k$ tenemos:
+
+\begin{equation*}
+	V_M=\frac{3kAu}{4\pi}\frac{\cos^2\alpha}{r^2}
+\end{equation*}
+
+donde $u=V\sin i + v_i$ es la velocidad resultante normal al rotor.
+
+La velocidad inducida por el rotor imagen sobre el rotor real se obtiene sin más
+que sustituir $r=2z$ y $\alpha=\theta + i$:
+
+\begin{equation*}
+	\delta v_i=\frac{3kuR^2}{4\pi r^2}\cos^2\left(\theta + i\right) 
+\end{equation*}
+
+Determinamos la constante $k$ haciendo que la anterior expresión coincida con la
+que obtuvimos en el caso a de vuelo a punto fijo por lo que $k=\frac{1}{3}$
+
+Por último despreciando $i$ frente a $\theta$ llegamos a la expresión:
+
+\begin{equation*}
+	u_G=u\left[1-\frac{1}{16\left(\frac{z}{R}\right)^2}\frac{1}{1+\left(\frac{\mu}{\lambda}\right)^2}\right]
+\end{equation*}
+
+\subsection{Teoría del elemento pala}
+
+Aplicando la teoría linealizada de perfiles bidimensionales y estacionarios
+obtenemos la siguiente expresión para la sustentación que, por unidad de longitud,
+realiza la pala $i$:
+
+\begin{equation*}
+	L_i = \frac{1}{2}\rho a_0c(\Omega R)^2\left[
+	\bar{U}_{T_i}^2\theta_i +
+	\bar{U}_{P_i}\bar{U}_{T_i}\right]
+\end{equation*}
+
+%Será de utilidad llamar para más adelante:
+%
+%\begin{align*}
+%	F &= \int_0^1{\left[\bar{U}_T^2\theta +	
+%	\bar{U}_P\bar{U}_T\right]d\bar{r}}\\
+%	M &= \frac{1}{2}\int_0^1{\left[\bar{U}_T^2\theta +	
+%	\bar{U}_P\bar{U}_T\right]\bar{r}d\bar{r}} \\
+%\end{align*}
+
+%Ambas funciones se pueden expandir en desarrollo en serie de Fourier, y tienen
+%términos de hasta orden $3\psi_i$:
+%
+%\begin{align*}
+%	F(\psi_i) &= F_0 + F_{1c}cos(\psi_i) + F_{1s}sin(\psi_i) + \\
+%	& F_{2c}cos(2\psi_i) + F_{2s}sin(2\psi_i) + F_{3c}cos(3\psi_i) +
+%	F_{3s}sin(3\psi_i) \\
+%	M(\psi_i) &= M_0 + M_{1c}cos(\psi_i) + M_{1s}sin(\psi_i) + \\
+%	& M_{2c}cos(2\psi_i) + M_{2s}sin(2\psi_i) + M_{3c}cos(3\psi_i) +
+%	M_{3s}sin(3\psi_i) \\
+%\end{align*}
+%
+%A continuación se presentan los valores de los términos:
+%\begin{eqnarray*}
+%	F_0 &=& \frac{\mu_z - \lambda_0}{2} + \left(\frac{1}{3} +
+%	\frac{\mu^2}{2}\right)\theta_0 + \frac{1}{4}\left(1 +
+%	\mu^2\right)\theta_t + \frac{\mu}{2}\theta_{1s} + \frac{\mu}{4}\bar{p}_w
+%	- \frac{\mu}{4}\lambda_{1s} \\
+%	F_{1c} &=& \left(\frac{1}{3} + \frac{\mu^2}{4}\right)\theta_{1c} +
+%	\frac{1}{3}\bar{q}_w - \frac{1}{3}\lambda_{1c} - \frac{\mu}{2}\beta_0 -
+%	\left(\frac{1}{3} + \frac{\mu^2}{4}\right)\beta_{1s} \\
+%	F_{1s} &=&  \mu(\mu_z - \lambda_0) + \mu\theta_0 +
+%	\frac{2}{3}\mu\theta_t + \left(\frac{1}{3} +
+%	\frac{3}{4}\mu^2\right)\theta_{1s} + \frac{1}{3}\bar{p}_w -
+%	\frac{1}{3}\lambda_{1s} + \left(\frac{1}{3}
+%	-\frac{\mu^2}{4}\right)\beta_{1c} \\
+%	F_{2c} &=& \mu\left(-\frac{\mu}{2}\theta_0 - \frac{\mu}{4}\theta_t -
+%	\frac{1}{2}\theta_{1s} -\frac{1}{4}\bar{p}_w +
+%	\frac{1}{4}\lambda_{1s} - \frac{1}{2}\beta_{1c}\right) \\
+%	F_{2s} &=& \mu\left(\frac{1}{2}\theta_{1c} + \frac{1}{4}\bar{q}_w -
+%	\frac{1}{4}\lambda_{1c} - \frac{\mu}{2}\beta_0 -
+%	\frac{1}{2}\beta_{1s} \right)\\
+%	F_{3c} &=& \mu^2\left(-\frac{1}{4}\theta_{1c} +
+%	\frac{1}{4}\beta_{1s}\right) \\
+%	F_{3s} &=& \mu^2\left(-\frac{1}{4}\theta_{1s} +
+%	\frac{1}{4}\beta_{1c}\right) \\
+%	M_0 &=& \frac{1}{6}(\mu_z - \lambda_0) + \frac{1}{8}\left(1 +
+%	\mu^2\right)\theta_0 + \left(\frac{1}{10} +
+%	\frac{\mu^2}{12}\right)\theta_t + \frac{\mu}{6}\theta_{1s} + 
+%	\frac{\mu}{12}\bar{p}_w - \frac{\mu}{12}\lambda_{1s} \\
+%	M_{1c} &=& \left(\frac{1}{8} + \frac{\mu^2}{16}\right)\theta_{1c} +
+%	\frac{1}{8}\bar{q}_w - \frac{1}{8}\lambda_{1c} - \frac{\mu}{6}\beta_0 -
+%	\left(\frac{1}{8} + \frac{\mu^2}{16}\right)\beta_{1s} \\
+%	M_{1s} &=& \frac{\mu}{4}(\mu_z - \lambda_0) + \frac{1}{3}\mu\theta_0 +
+%	\frac{\mu}{4}\theta_t +	\left(\frac{1}{8} + 
+%	\frac{3}{16}\mu^2\right)\theta_{1s} + \frac{1}{8}\bar{p}_w
+%	-\frac{1}{8}\lambda_{1s} +
+%	\left(\frac{1}{8} - \frac{\mu^2}{16}\right)\beta_{1c} \\
+%	M_{2c} &=& \mu\left(-\frac{\mu}{8}\theta_0  - \frac{\mu}{12}\theta_t -
+%	\frac{1}{6}\theta_{1s} - \frac{1}{12}\bar{p}_w +
+%	\frac{1}{12}\lambda_{1s} - \frac{1}{6}\beta_{1c}\right) \\
+%	M_{2s} &=& \mu\left(\frac{1}{6}\theta_{1c} + \frac{1}{12}\bar{q}_w -
+%	\frac{1}{12}\lambda_{1c} - \frac{\mu}{8}\beta_0 -
+%	\frac{1}{6}\beta_{1s}\right) \\
+%	M_{3c} &=& \mu^2\left( -\frac{1}{16}\theta_{1c} + \frac{1}{16}\beta_{1s}
+%	\right) \\
+%	M_{3s} &=& \mu^2\left( -\frac{1}{16}\theta_{1s} + \frac{1}{16}\beta_{1c} 
+%	\right) \\
+%\end{eqnarray*}
+
+%\begin{figure}
+%  \input{Figuras/TEP.pstex_t}
+%  \input{Figuras/TEP_L_psi.pstex_t}
+%  \caption{Sustentación en el punto en función del tiempo}
+%  \label{modelo:TEP}
+%\end{figure}
+
+
+\subsection{Modelo de estela de Pitt-Peters}
+Hemos calculado la velocidad uniforme que aparece debido al efecto de la
+tracción media del rotor y hemos corregido dicha velocidad debido al efecto
+suelo, pero hay una serie de efectos que no estamos prediciendo todavía:
+
+\begin{enumerate}
+	\item La componente no uniforme de velocidad inducida que aparece 
+		en vuelo de avance, incluso suponiendo tracción constante 
+		en todo el rotor.
+	\item La componente no uniforme de velocidad inducida que aparece
+		en cualquier situación debido a los momentos (y otras
+		componentes no uniformes de la tracción) del rotor.
+	\item La variación en la componente uniforme de la velocidad inducida
+		debido a los momentos (y otras componentes no uniformes de la
+		tracción) del rotor.
+\end{enumerate}
+
+Para tener en cuenta dichos efectos utilizamos el modelo de estela de Pitt-Peters. 
+A continuación se presentan las ecuaciones no estacionarias y no lineales del modelo 
+y más adelante se simplifican restringiendo la no linealidad a la componente uniforme 
+y eliminando los términos no estacionarios. 
+
+El modelo nos relaciona la velocidad inducida con los momentos aerodinámicos
+mediante la ecuación diferencial:
+
+\begin{equation*}
+	M\left\{\begin{array}{c}
+		\lambda_0 \\
+		\lambda_{1sw} \\
+		\lambda_{1cw} 
+	\end{array}\right\}^* + VL^{-1}\left\{\begin{array}{c}
+		\lambda_0 \\
+		\lambda_{1sw} \\
+		\lambda_{1cw} 
+	\end{array}\right\} = 
+	\left\{\begin{array}{c}
+		c_T \\
+		-c_L \\
+		-c_M 
+	\end{array}\right\}_a
+\end{equation*}
+
+Donde el subíndice $a$ indica que sólo se consideran fuerzas aerodinámicas.
+Las matrices anteriores valen:
+
+\begin{align*}
+	M &= \left[\begin{array}{ccc}
+		\frac{128}{75\pi} & 0 & 0 \\
+		0 & \frac{16}{45\pi} & 0 \\
+		0 & 0 & \frac{16}{45\pi} 
+	\end{array}\right] \\
+	L &= \left[\begin{array}{ccc}
+		\frac{1}{2} & 0 & -\frac{15\pi}{64}X \\
+		0 & 2(1 + X^2) & 0 \\
+		\frac{15\pi}{64}X & 0 & 2(1 - X^2) 
+	\end{array}\right]\\
+	V &= \left[\begin{array}{ccc}
+		V_T & 0 & \\
+		0 & \bar{V} & 0 \\
+		0 & 0 & \bar{V} 
+	\end{array}\right] \\
+\end{align*}
+
+$X$ es sólo función del ángulo que la estela forma con el eje del rotor, y vale:
+
+\begin{equation*}
+	X = \tan\left(\frac{\chi}{2}\right)
+\end{equation*}
+
+$V_T$ es la velocidad adimensional en el rotor, como estamos utilizando la TCMM es entonces:
+
+\begin{equation*}
+	V_T =
+	\sqrt{\frac{1}{k_\nu^2}\mu^2+\left(\frac{1}{k_\nu^2}-\frac{1}{k_i^2}\right)\mu_z^2+\frac{1}{k_i^2}\left(\mu_z-\lambda_0\right)^2}
+\end{equation*}
+
+y $\bar{V}$ es una velocidad corregida:
+
+\begin{equation*}
+	\bar{V} = V_T + \lambda_0\frac{\partial V_T}{\partial \lambda_0} = 
+	V_T\left[1 - \frac{(\mu_z - \lambda_0)\lambda_0}{k_i^2V_T^2}\right]
+\end{equation*}
+
+Los coeficientes de tracción y momentos son:
+
+\begin{align*}
+	c_T &= \frac{1}{\rho\left(\Omega R\right)^2\pi
+	R^2}\sum_{i=1}^{N_b}\int_0^R{L_idr}\\
+	c_L &= \frac{1}{\rho\left(\Omega R\right)^2\pi
+	R^3}\sum_{i=1}^{N_b}\int_0^R{L_i(-r\sin\psi_i)dr}\\
+	c_M &= \frac{1}{\rho\left(\Omega R\right)^2\pi
+	R^3}\sum_{i=1}^{N_b}\int_0^R{L_i(-r\cos\psi_i)dr}
+\end{align*}
+
+Sustituyendo en las anteriores expresiones de los coeficientes la sustentación
+dada por la TCP, tenemos que el lado derecho del modelo de la estela queda:
+
+\begin{equation*}
+	\left\{\begin{array}{c}
+		c_T \\
+		-c_L \\
+		-c_M
+	\end{array}\right\} =
+	\frac{1}{N_b}\frac{a_0s}{2}\sum_{i=1}^{N_b}\left\{\begin{array}{c}
+		F_i \\
+		2M_i\sin\psi_i\\
+		2M_I\cos\psi_i
+	\end{array}\right\}
+\end{equation*}
+
+La anterior ecuación queda para cuatro palas del siguiente modo, 
+donde se han agrupado las magnitudes en la forma vectorial usual 
+(ver \ref{eq:vectores} y \ref{eq:vector batimiento}):
+
+\begin{multline*}
+	\left\{\begin{array}{c}
+		c_T \\
+		-c_L \\
+		-c_M
+	\end{array}\right\} = \frac{a_0s}{4}\left(
+	N_\theta\vec{\theta} + N_\lambda\vec{\lambda} +
+	N_\omega\vec{\omega}\right. +\\
+	\left.\vec{N}_{\lambda_0}(\mu_z - \lambda_0) + N_{\beta_M}\vec{\beta}_M +
+	N_{\beta_M^*}\vec{\beta}_M^*\right)
+\end{multline*}
+
+Y las anteriores matrices son:
+\begin{align*}
+	N_\theta &= \left[\begin{array}{cccc}
+		\frac{2}{3} + \mu^2 & \frac{1}{2}(1+\mu^2) & \mu & 0 \\
+		\frac{2}{3}\mu & \frac{\mu}{2} & \frac{1}{4}\left(1 +
+		\frac{3}{2}\mu^2 + \frac{1}{2}\cos4\bar{t}\right) &
+		-\frac{\mu^2}{8}\sin4\bar{t} \\
+		0 & 0 & -\frac{1}{8}\sin4\bar{t} & \frac{1}{4}\left(1 +
+		\frac{\mu^2}{2} - \frac{1}{2}\cos4\bar{t}\right)
+	\end{array}\right] \\
+	N_\lambda = -N_\omega &= \left[\begin{array}{cc}
+		-\frac{\mu}{2} & 0 \\
+		-\frac{1}{4} & 0 \\
+		0 & -\frac{1}{4} 
+	\end{array}\right]\\
+	N_{\lambda_0} &= \left\{\begin{array}{c}
+		1 \\
+		\frac{\mu}{2} \\
+		0
+	\end{array}\right\} \\
+	N_{\beta_M} &= \left[\begin{array}{cccc}
+		0 & \mu^2\sin2\bar{t} & -\mu\cos2\bar{t} & -\mu\sin2\bar{t} \\
+		0 & \frac{\mu}{3}\sin2\bar{t} & \frac{1}{4}\left(1 -
+		\frac{\mu^2}{2} + \frac{\mu^2}{2}\cos4\bar{t}\right) &
+		\frac{\mu^2}{8}\sin4\bar{t} \\
+		-\frac{\mu}{3} & \frac{\mu}{3}\cos2\bar{t} &
+		-\frac{\mu^2}{8}\sin4\bar{t} & -\frac{1}{4}\left(1 +
+		\frac{\mu^2}{2} - \frac{\mu^2}{2}\cos4\bar{t}\right)
+	\end{array}\right]\\
+	N_{\beta_M^*} &= \left[\begin{array}{cccc}
+		-\frac{2}{3} & 0 & -\frac{\mu}{2}\sin2\bar{t} &
+		\frac{\mu}{2}\cos2\bar{t} \\
+		-\frac{\mu}{3} & -\frac{\mu}{3}\cos2\bar{t} & 0 & -\frac{1}{4}
+		\\
+		0 & \frac{\mu}{3}\sin2\bar{t} & -\frac{1}{4} & 0 
+	\end{array}\right]
+\end{align*}
+
+\subsection{Ecuación de la velocidad inducida}
+A continuación simplificamos el modelo de estela de forma análoga a como hicimos
+con el batimiento: despreciando los términos que no sean la solución
+estacionaria. Además realizamos una simplificación adicional, que es despreciar
+el efecto que $c_L$ y $c_M$ tienen sobre la velocidad inducida uniforme
+$\lambda_0$ y también despreciamos el efecto que $\lambda_{1sw}$ tiene sobre
+$c_T$. De esta forma pasamos de tener un sistema de 3 ecuaciones no lineales a
+tener una ecuación no lineal en $\lambda_0$ y una vez obtenida ésta,
+dos ecuaciones lineales para $\lambda_{1cw}$ y $\lambda_{1sw}$.
+
+Tras aplicar las anteriores simplificaciones, la primera ecuación de la estela
+nos da el resultado clásico de la TCM(M):
+\begin{equation*}
+	\lambda_0 = \frac{c_T}{2V_T}
+\end{equation*}
+
+Para incluir el efecto suelo hay que utilizar la velocidad inducida modificada
+por el efecto suelo en la TEP. El coeficiente de sustentación se encuentra calculado 
+en función de la velocidad teniendo en cuenta el efecto suelo, por lo que lo 
+reescribimos y ponemos en función de la velocidad inducida sin efecto suelo. 
+Para ello aplicamos la relación que obtuvimos para el efecto suelo
+
+\begin{equation*}
+	\mu_z-\lambda_{0G} = \left(\mu_z-\lambda_0\right)K_{OG}(\lambda_0)
+\end{equation*}
+
+Donde se ha llamado:
+\begin{equation*}	
+	K_{0G}(\lambda_0) = 1-\frac{1}{16\left(\frac{z}{R}\right)^2}
+	\frac{1}{1+\left(\frac{\mu}{\lambda_0}\right)^2}
+\end{equation*}
+
+El coeficiente de sustentación es por tanto:
+\begin{equation*}
+	c_T(\lambda_0) =
+	\frac{as}{2}\left\{\theta_0\left(\frac{1}{3}+\frac{\mu^2}{2}\right) +
+	\frac{\mu}{2}\left(\theta_{1sw}+\frac{\bar{p}_w}{2}\right) +
+	K_{0G}(\lambda_0)\frac{\mu_z-\lambda_0}{2}+\frac{1}{4}\left(1+\mu^2\right)\theta_t\right\}
+\end{equation*}
+
+Ya podemos resolver la ecuación no lineal que tenemos para $\lambda_0$, para
+ello utilizamos el método de Newton o de la Secante; con el resultado ya podemos calcular
+$\lambda_{0G}$ y $K_{0G}$  y tenemos el siguiente par de
+ecuaciones lineales para $\lambda_{1cw}$ y $\lambda_{1sw}$:
+
+\begin{equation*}
+	A_{\lambda\beta}\vec{\beta} + A_{\lambda\lambda}\vec{\lambda} =
+	A_{\lambda\theta}\vec{\theta} + A_{\lambda\omega}\vec{\omega} +
+	A_{\lambda\dot{\omega}}\dot{\vec{\omega}} + \vec{A}_{\lambda\lambda_0}\left(\mu_z -
+	\lambda_0\right)
+\end{equation*}
+
+Donde las anteriores matrices tienen de componentes:
+\begin{align*}
+	A_{\lambda\beta} &= -\frac{a_0s}{4}KN_{\beta0} &
+	A_{\lambda\lambda} &= I - \frac{a_0s}{4}KN_{\lambda0} \\
+	A_{\lambda\theta} &= \frac{a_0s}{4}KN_{\theta0} &
+	A_{\lambda\lambda_0} &= \frac{a_0s}{4}KN_{\lambda_00} \\
+	A_{\lambda\omega} &= \frac{a_0s}{4}KN_{\omega0} &
+	A_{\lambda\omega^*} &= \frac{a_0s}{4}KN_{\omega^*0} 
+\end{align*}
+
+Y el subíndice $0$ indica que sólo se han retenido términos estacionarios (y se
+ha eliminado el grado de libertad $\beta_d$, al igual que para la ecuación de
+batimiento):
+
+\begin{align*}
+	N_{\theta0} &= \left[\begin{array}{cccc}
+		\frac{2}{3} + \mu^2 & \frac{1}{2}\left(1 + \mu^2\right) & \mu & 0 \\
+		\frac{2}{3}\mu & \frac{\mu}{2} & \frac{1}{4}\left(1 + \frac{3}{2}\mu^2\right) & 0 \\
+		0 & 0 & 0 & \frac{1}{4}\left(1 + \frac{\mu^2}{2}\right)
+	\end{array}\right] \\
+	N_{\beta0} &= \left[\begin{array}{ccc}
+		0 & 0 & 0 \\
+		0 & \frac{1}{4}\left(1 - \frac{\mu^2}{2}\right) & 0 \\
+		-\frac{\mu}{3} & 0 & -\frac{1}{4}\left(1 + \frac{\mu^2}{2}\right)
+	\end{array}\right] \\
+	N_{\lambda0} = -N_{\omega_0} &= \left[\begin{array}{cc}
+		-\frac{\mu}{2} & 0 \\
+		-\frac{1}{4} & 0 \\
+		0 & -\frac{1}{4} 
+	\end{array}\right] \\
+	N_{\lambda_00} &= \left\{\begin{array}{c}
+		1 \\
+		\frac{\mu}{2} \\
+		0
+	\end{array}\right\}
+\end{align*}
+
+K es simplemente la matriz que resulta de eliminar la primera fila al producto
+de $L$ por $V^{-1}$:
+
+\begin{equation*}
+	K = \left[\begin{array}{ccc}
+		0 & \frac{2(1 + X^2)}{\bar{V}} & 0 \\
+		\frac{15\pi}{64V_T}X & 0 & \frac{2(1-X^2)}{\bar{V}}
+	\end{array}\right]
+\end{equation*}	
+
+\subsection{Esquema de cálculo del rotor}
+\label{sec: esquema rotor}
+A continuación agrupamos los resultado que se han obtenido en toda esta sección
+y detallamos el cálculo de las fuerzas sobre el rotor:
+
+\begin{enumerate}
+	\item Calculamos la velocidad inducida media en el rotor sin efecto
+		suelo $\lambda_0$ resolviendo numéricamente la siguiente 
+		ecuación no lineal:
+		\begin{equation*}
+			\frac{\lambda_0}{k_i} = \frac{c_T}{2V_T} 
+		\end{equation*}
+
+	\item Con $\lambda_0$ calculado utilizamos $K_{G0}$ para calcular la
+		velocidad inducida con efecto suelo.
+	
+	\item Resolvemos las 5 ecuaciones lineales que nos determinan el
+		batimiento y las componentes no uniformes de la velocidad
+		inducida:
+		\begin{equation*}
+			\left[\begin{array}{cc}
+				A_{\beta\beta} & A_{\beta\lambda} \\
+				A_{\lambda\beta} & A_{\lambda\lambda} 
+			\end{array}\right]
+			\left\{\begin{array}{c}
+				\vec{\beta} \\
+				\vec{\lambda} 
+			\end{array}\right\} 
+			= 
+			\left[\begin{array}{c}
+				A_{\beta\theta} \\
+				A_{\lambda\theta}
+			\end{array}\right]\vec{\theta} + 
+			\left[\begin{array}{c}
+				A_{\beta\omega} \\
+				A_{\lambda\omega}
+			\end{array}\right]\vec{\omega} + 
+			\left\{\begin{array}{c}
+				A_{\beta\lambda_0} \\
+				A_{\lambda\lambda_0} 
+			\end{array}\right\}\left(\mu_z - \lambda_0\right) +
+			\left[\begin{array}{c}
+				A_{\beta\dot{\omega}} \\
+				A_{\lambda\dot{\omega}}
+			\end{array}\right]\dot{\vec{\omega}} 
+		\end{equation*}
+		
+		Hay que tener en cuenta que los resultados no sólo dependen del
+		vector de estado del helicóptero sino también de su derivada
+		($\dot{p}_w$ y $\dot{q}_w$) por lo que invirtiendo la matriz del
+		lado izquierdo de las ecuaciones tenemos unos resultados de la
+		forma:
+
+		\begin{align*}
+			\vec{\beta} &= \vec{\beta}_0 +
+			\beta_1\left\{\begin{array}{c}
+				\dot{p}_w \\
+				\dot{q}_w 
+			\end{array}\right\} \\
+			\vec{\lambda} &= \vec{\lambda}_0 +
+			\lambda_1\left\{\begin{array}{c}
+				\dot{p}_w \\
+				\dot{q}_w 
+			\end{array}\right\} 
+		\end{align*}
+
+		Donde $\beta_1$ y $\lambda_1$ son matrices de 3x2 y 2x2
+		respectivamente. Las fuerzas en el plano del rotor y el par
+		del rotor dependen únicamente de términos de segundo orden por
+		lo que no necesitamos para ellas los términos dependientes en la
+		aceleración angular ya que los despreciamos. La sustentación del
+		rotor depende de los términos linealmente pero no del batimiento
+		ni de las no uniformes de la velocidad inducida así que
+		tampoco nos preocupan los términos en aceleración angular.
+		Finalmente los momentos de balance y cabeceo dependen
+		linealmente del batimiento, recordamos que:
+		
+		\begin{align*}
+			L_{hw} &= -\frac{N_b}{2}K_\beta\beta_{1sw} -\frac{Q_R}{2}\beta_{1cw}\\
+			M_{hw} &= -\frac{N_b}{2}K_\beta\beta_{1cw} +\frac{Q_R}{2}\beta_{1sw}
+		\end{align*}
+		
+		por lo que los momentos contribuirán con un término de
+		amortiguamiento al movimiento del helicóptero, que habrá que
+		pasar al lado izquierdo de la ecuación diferencial.
+	
+	\item Calculamos las fuerzas y momentos del rotor y los añadimos a la
+		ecuaciones del helicóptero utilizando las fórmulas de las sección 
+		\ref{sec: fuerzas rotor}.
+	\item Transportamos las fuerzas y momentos al centro de masas y obtenemos 
+		las fuerzas y momentos del rotor sobre el centro de masas en la forma:
+		\begin{align*}
+			\vec{F}_R &= \vec{F}_{R_0} + F_{R_1}\dot{\vec{x}} \\
+			\vec{M}_R &= \vec{M}_{R_0} + M_{R_1}\dot{\vec{x}} 
+		\end{align*}
+
+\end{enumerate}
+\section{Fuselaje}
+\subsection{Ecuaciones del sólido rígido}
+Modelamos el fuselaje como un sólido rígido, sobre el que actúan las fuerzas del
+resto de subsistemas. Las ecuaciones de movimiento del sólido rígido son:
+\begin{enumerate}
+	\item Momento lineal
+		\begin{equation*}
+			\vec{F}=m\frac{d\vec{v}}{dt}
+		\end{equation*}
+	\item Momento angular 
+		\begin{equation*}
+			\vec{M}=\frac{d(I\vec{\omega})}{dt}
+		\end{equation*}
+\end{enumerate}
+Donde $\vec{v}$ es la velocidad del centro de masas respecto a un sistema
+inercial, $\vec{\omega}$ es la velocidad angular de unos ejes ligados al sólido
+respecto a los ejes inerciales y $I$ es la matriz de inercia del sólido, que de
+ahora en adelante supondremos tiene el plano $xz$ de simetría por lo que la
+matriz de inercia se simplifica:
+
+\begin{equation*}
+	I=\left[\begin{array}{ccc}
+		I_x & 0 & -J_{xz} \\
+		0 & I_y 0 \\
+		-J_{xz} & 0 & I_z 
+	\end{array}\right]
+\end{equation*}
+
+Podemos expresar las anteriores ecuaciones expresando los vectores en ejes
+ligados al cuerpo, en cuyo caso queda:
+\begin{align*}
+	\vec{F} &= m\left(\frac{\partial\vec{v}}{\partial t} +
+	\vec{\omega}\wedge\vec{v}\right) \\
+	\vec{M} &= I\frac{\partial\vec{\omega}}{\partial t} +
+	\vec{\omega}\wedge\left(I\vec{\omega}\right) \\
+\end{align*}
+
+Desarrollando las anteriores ecuaciones en componentes:
+
+\begin{align*}
+	X &= m(\dot{u} - rv + qw) \\
+	Y &= m(\dot{v} + ru - pw) \\
+	Z &= m(\dot{w} - qu + pv) \\
+	L &= I_x\dot{p} - J_{xz}\dot{r} + (I_z-I_y)qr - J_{xz}pq \\
+	M &= I_y\dot{q} - (I_z - I_x)pr + J_{xz}(p^2-r^2) \\
+	N &= I_z\dot{r} - J_{xz}\dot{p} - (I_x - I_y)pq + J_{xz}qr \\
+\end{align*}
+
+La posición del centro de masas en cada instante se obtiene de 
+las ecuaciones cinemáticas:
+
+\begin{equation*}
+    \dot{\left\{\begin{array}{c}
+        x_I \\
+        y_I \\
+        z_I
+    \end{array}\right\}}
+     = L_{IB}\left\{\begin{array}{c}u \\ v \\ w\end{array}\right\}	
+\end{equation*}
+
+Finalmente complementamos las ecuaciones cinemáticas con las ecuaciones
+para la variación de las componentes del cuaternio (ver ecuación \ref{eq:cuaternios}) 
+
+\subsection{Fuerzas aerodinámicas del fuselaje}
+Debe ser posible calcular para cada ángulo de ataque y de resbalamiento las
+fuerzas aerodinámicas que actúan sobre el fuselaje. Las fuerzas y momentos sobre el 
+fuselaje son:
+\begin{align*}
+	X_f =& \frac{1}{2}\rho V^2S_pc_{x_f} \\
+	Y_f =& \frac{1}{2}\rho V^2S_sc_{y_f} \\
+	Z_f =& \frac{1}{2}\rho V^2S_pc_{z_f} \\
+	L_f =& \frac{1}{2}\rho V^2S_sl_fc_{l_f} \\
+	M_f =& \frac{1}{2}\rho V^2S_pl_fc_{m_f} \\
+	N_f =& \frac{1}{2}\rho V^2S_sl_fc_{n_f} 
+\end{align*}
+
+Donde $S_s$ y $S_p$ son una superficie lateral y frontal respectivamente del
+helicóptero y $l_f$ una distancia. Como en general los datos aerodinámicos se
+encuentran dados en ejes viento, los anteriores coeficientes se obtienen de la
+forma:
+\begin{align*}
+	\left\{
+	\begin{array}{c}
+		c_x \\
+		c_y \\
+		c_z 
+	\end{array}\right\} =& L_{Bw_f}
+	\left\{
+	\begin{array}{c}
+		-c_D \\
+		c_Y \\
+		-c_L 
+	\end{array}\right\} \\
+	\left\{
+	\begin{array}{c}
+		c_l \\
+		c_m \\
+		c_n 
+	\end{array}\right\} =& L_{Bw_f}
+	\left\{
+	\begin{array}{c}
+		c_l \\
+		c_m \\
+		c_n 
+	\end{array}\right\} \\
+\end{align*}
+
+Donde la matriz de cambio de ejes viento del fuselaje a ejes cuerpo es:
+\begin{equation*}
+	L_{Bw_f} = \left[\begin{array}{ccc}
+		\cos\alpha\cos\beta & -\cos\alpha\sin\beta & -\sin\alpha \\
+		\sin\beta & \cos\beta & 0 \\
+		\sin\alpha\cos\beta & -\sin\alpha\sin\beta & \cos\alpha 
+	\end{array}\right]
+\end{equation*}
+
+Necesitamos por tanto dar para todo ángulo de ataque $\alpha$ y de resbalamiento
+$\beta$ el valor de los coeficientes $c_D$, $c_L$, $c_Y$, $c_l$, $c_m$ y $c_n$.
+Como el fuselaje presenta una forma muy compleja no existe un método fiable de
+calcular los anteriores coeficientes por lo que generalmente se recurre a
+ensayos realizados en tuneles aerodinámicos. Sin embargo, es posible que sólo se
+dispongan de datos para ángulos pequeños por lo que si es así se utilizan las
+siguientes aproximaciones, tal como vienen en \cite{NASATM84281}:
+\begin{align*}
+	c_{D_f} &= c_{D_{f_\alpha}} + c_{D_{f_\beta}} \\
+	c_{D_{f_\alpha}} &= c_{D_{f_{\alpha=90^o}}}|\sin\alpha|\sin^2\alpha \\
+	c_{D_{f_\beta}} &= c_{D_{f_{\beta=90^o}}}|\sin\beta|\sin^2\beta \\
+	c_{L_f} &= c_{D_{f_{\alpha=90^o}}}|\sin\alpha|\sin\alpha\cos\alpha \\
+	c_{m_f} &= c_{m_{f_{\alpha=90^0}}}|\sin\alpha|\sin\alpha \\
+	c_{Y_f} &= -c_{D_{f_{\beta=90^o}}}|\sin\beta|\sin\beta\cos\beta \\
+	c_{l_f} &= c_{l_{f_{\beta=90^o}}}|\sin\beta|\sin\beta \\
+	c_{n_f} &= c_{n_{f_{\beta=90^o}}}|\sin\beta|\sin\beta \\
+\end{align*}
+
+Si los datos para ángulos pequeños se encuentran dados en forma de tabla se
+interpolan mediante splines cúbicas, y para asegurar una transición suave de
+ángulos pequeños a grandes se interpola mediante una spline cúbica que va desde
+el último punto para ángulos pequeños a otros dos puntos a 45º y 50º
+respectivamente, calculados mediante las anteriores fórmulas. A partir del punto
+situado a 50º del ángulo pequeño se utilizan las anteriores fórmulas.
+
+\section{Rotor de cola}
+Modelamos el rotor de cola de forma similar al rotor principal. Para ello
+utilizamos los ejes que se describieron en el capítulo dedicado a sistemas de
+referencia.  
+
+\subsection{Acoplamiento entre batimiento y paso}
+Al contrario que en el rotor principal, el eje de batimiento de la pala no se
+encuentra perpendicular a la pala, sino que se encuentra girado un ángulo
+$\delta_3$ (figura \ref{fig:delta3}).
+
+\begin{figure}
+	\input{Figuras/delta3.pstex_t}
+	\caption{Ángulo $\delta_3$}
+    \label{fig:delta3}
+\end{figure}
+
+Como consecuencia, al moverse la pala, su eje describe un cono de semiángulo
+$\frac{\pi}{2}-\delta_3$. Para calcular los ejes transformados de la pala
+calculamos el efecto de una rotación $\alpha$ alrededor del eje de dicho cono,
+el cuaternio de rotación en ejes rotación será entonces:
+
+\begin{equation*}
+    q = \left[\cos\frac{\alpha}{2}, \sin\frac{\alpha}{2}\vec{u}\right]
+\end{equation*}
+Donde $\vec{u}$ es el vector unitario alrededor del cual rota la pala:
+\begin{equation*}
+    \vec{u} = \sin\delta_3\vec{i}_1 + \cos\delta_3\vec{j}_1
+\end{equation*}
+
+A partir de dicho cuaternio es posible encontrar los ángulos de batimiento
+$\beta$, paso $\theta$ y arrastre $\zeta$ de la pala de modo similar a como se
+realizó con los ángulos de Euler. En la figura \ref{fig:batimiento, arrastre y paso}
+se muestran los giros que transforman de ejes de rotación a ejes pala. 
+
+\begin{figure}
+	\input{Figuras/angulosPala.pstex_t}
+	\caption{Ángulos de batimiento, arrastre y paso}
+    \label{fig:batimiento, arrastre y paso}
+\end{figure}
+
+Para ángulos pequeños la matriz de
+cambio de base es entonces:
+\begin{equation*}
+    \left\{\begin{array}{c}
+	    \vec{i}_b \\
+    	\vec{j}_b \\
+	    \vec{k}_b 
+    \end{array}\right\} = \left[\begin{array}{ccc}
+    	1 & \zeta & -\beta \\
+    	-\zeta & 1 & \theta \\
+    	\beta & -\theta & 1
+    \end{array}\right]
+    \left\{\begin{array}{c}
+    	-\vec{i}_1 \\
+    	-\vec{j}_1 \\
+    	\vec{k}_1
+    \end{array}\right\}
+\end{equation*}
+
+Y para ángulos pequeños de $\alpha$ la matriz de cambio de base (transpuesta de
+la matriz de rotación), aplicando la fórmula que se obtuvo para el cambio de
+base de ejes cuerpo a inerciales es:
+
+\begin{equation*}
+    \left\{\begin{array}{c}
+    	\vec{i}_b \\
+    	\vec{j}_b \\
+    	\vec{k}_b 
+    \end{array}\right\} = \left[\begin{array}{ccc}
+    	1 & 0 & -\alpha\cos\delta_3 \\
+    	0 & 1 & \alpha\sin\delta_3 \\
+    	\alpha\cos\delta_3 & -\alpha\sin\delta_3 & 1
+    \end{array}\right]
+    \left\{\begin{array}{c}
+    	-\vec{i}_1 \\
+    	-\vec{j}_1 \\
+    	\vec{k}_1
+    \end{array}\right\}
+\end{equation*}
+
+Identificando términos y despejando $\alpha$ podemos obtener el 
+paso provocado por el batimiento de la pala:
+\begin{equation*}
+    \theta = \beta\tan\delta_3
+\end{equation*}
+A partir de ahora llamamos $k_3=\tan\delta_3$.
+
+El paso total en las palas del rotor de cola será el debido a los controles más el debido al
+batimiento:
+\begin{align*}
+	\theta_{0_T}^* &= \theta_{0_T} + k_3\beta_{0_T} \\
+	\theta_{{1s}_T}^* &= k_3\beta_{{1s}_T} \\
+	\theta_{{1c}_T}^* &= k_3\beta_{{1c}_T} \\
+\end{align*}
+
+Donde hemos supuesto que el único control que hace el piloto sobre el rotor de cola
+es sobre el paso colectivo.
+
+\subsection{Ecuación de batimiento}
+Aprovechamos las relaciones que se obtuvieron para el rotor principal
+despreciando el efecto de la velocidad angular y las componentes no uniformes de
+la velocidad inducida y
+reemplazamos el paso por el paso total debido al batimiento. Obtenemos el
+siguiente sistema de ecuaciones:
+\[
+A_{{\beta\beta}_T}\left\{\begin{array}{c}
+	\beta_{0_T} \\
+	\beta_{1cw_T} \\
+	\beta_{1sw_T} 
+\end{array}\right\} = \vec{A}_{{\beta\theta_0}_T}\theta_{0_T} +
+\vec{A}_{{\beta\lambda_0}_T}(\mu_{z_T} - \lambda_{0_T}) + \vec{A}_{{\beta\theta_t}_T}\theta_{t_T}
+\]
+
+Donde las componentes de las anteriores matrices y vectores son:
+
+\begin{align*}
+	% primera fila de Abebe
+	A_{{\beta\beta}_T}^{11} &=  \left(\frac{8\lambda_\beta^2}{\gamma}\right)_T - k_3(1+\mu_T^2) \\
+	A_{{\beta\beta}_T}^{12} &=  0 \\
+	A_{{\beta\beta}_T}^{13} &=  -k_3\frac{4}{3}\mu_T \\
+	% segund fila de Abebe
+	A_{{\beta\beta}_T}^{21} &=  \frac{4\mu_T}{3} \\
+	A_{{\beta\beta}_T}^{22} &=  \left[\frac{8(\lambda_\beta^2-1)}{\gamma}\right]_T -
+	k_3\left(1+\frac{\mu_T^2}{2}\right) \\
+	A_{{\beta\beta}_T}^{23} &=  1 + \frac{\mu_T^2}{2}  \\
+	% tercera fila de Abebe
+	A_{{\beta\beta}_T}^{31} &=  -k_3\frac{8}{3}\mu_T \\
+	A_{{\beta\beta}_T}^{32} &= -1 + \frac{\mu_T^2}{2}  \\
+	A_{{\beta\beta}_T}^{33} &= \left[\frac{8(\lambda_\beta^2-1)}{\gamma}\right]_T -
+	k_3\left(1+\frac{3}{2}\mu_T^2\right) \\
+	A_{{\beta\theta_0}_T}^{1} &= 1 + \mu_T^2 \\
+	A_{{\beta\theta_0}_T}^{2} &= 0 \\
+	A_{{\beta\theta_0}_T}^{3} &= \frac{8}{3}\mu_T \\
+	A_{{\beta\lambda_0}_T}^{1} &= \frac{4}{3}\\
+	A_{{\beta\lambda_0}_T}^{2} &= 0 \\
+	A_{{\beta\lambda_0}_T}^{3} &= 2\mu_T \\
+	A_{{\beta\theta_t}_T}^{1} &=  4\left(\frac{1}{5} + \frac{\mu^2}{6}\right) \\
+	A_{{\beta\theta_t}_T}^{2} &=  0\\
+	A_{{\beta\theta_t}_T}^{3} &=  2\mu \\
+\end{align*}
+
+Invirtiendo la matriz $A_{{\beta\beta}_T}$ obtenemos el batimiento en función
+de la velocidad inducida, y del batimiento obtenemos los ángulos de paso
+efectivos, en función de la velocidad inducida.
+
+\subsection{Ecuación de la velocidad inducida}
+De la misma forma que para el rotor principal, pero sin la necesidad de tener en
+cuenta el efecto suelo llegamos a la siguiente ecuación que resulta de aplicar
+la TCMM y la teoría del elemento pala al rotor de cola:
+
+\begin{align*}
+	\frac{\lambda_{0_T}}{k_i} &= \frac{c_{T_T}}{2\sqrt{V_T}} \\
+	c_{T_T}(\lambda_{0_T}) &=
+	\frac{a_{0_T}s_T}{2}\left\{\theta_{0_T}^*\left(\frac{1}{3} +
+	\frac{\mu_T^2}{2}\right) + \frac{\mu_T}{2}\theta_{1s_T}^* +
+	\frac{\mu_{z_T} - \lambda_{0_T}}{2}\right\} \\
+	V_T &= \frac{1}{k_\nu^2}\mu_T^2 + \left(\frac{1}{k_{\nu}^2} -
+	\frac{1}{k_i^2}\right)\mu_{z_T}^2 +
+	\left(\frac{\mu_{z_T}-\lambda_{0_T}}{k_i}\right)^2 
+\end{align*}
+
+La anterior ecuación es no lineal y se resuelve al igual que para el rotor
+principal mediante el método de Newton. Una vez conocida la velocidad inducida
+podemos calcular el resto de las magnitudes, como el coeficiente de
+sustentación de la cola $c_{T_T}$ y el batimiento $\beta_{1cw_T}$ y
+$\beta_{1sw_T}$. 
+
+\subsection{Cálculo de las fuerzas y momentos}
+De la misma forma que para el rotor principal calculamos el par:
+\begin{equation*}
+    \left(\frac{2c_{Q_T}}{a_{0_T}s_T}\right) =
+    -(\mu_{z_T}-\lambda_{0_T})\left(\frac{2c_{T_T}}{a_{0_T}s_T}\right)+\frac{\delta_T}{4a_{0_T}}(1+3\mu_T^2) 
+\end{equation*}
+
+De nuevo $\delta_T$ es un coeficiente de resistencia medio:
+\begin{equation*}
+    \delta_T = \delta_{T_0} + \delta_{T_2}c_{T_T}^2 
+\end{equation*}
+
+Al contrario que para el rotor principal no retenemos los términos de segundo
+orden, por lo que en primera aproximación se puede suponer que la tracción del
+rotor de cola actúa perpendicular al plano de batimiento. Además el único
+momento que consideramos del rotor de cola es el $Q_T$. Pasando entonces de ejes
+rotor de cola-viento a rotor de cola, y de estos a ejes cuerpo llevando las
+resultantes al centro de masas del helicóptero, queda:
+
+\begin{align*}
+	X_T &= T_T\beta_{1c_T} \\
+	Y_T &= T_T \\
+	Z_T &= -T_T\beta_{1s_T} \\
+	L_T &= h_TY_T \\
+	M_T &= (l_T + x_{cg})Z_T - Q_T \\
+	N_T &= -(l_T + x_{cg})Y_T 
+\end{align*}
+
+\section[Est. horizontal]{Estabilizador horizontal}
+Calculamos la velocidad en ejes cuerpo del estabilizador horizontal:
+\begin{align*}
+	u_{{rw}_{tp}} &= u_{rw} - qh_{tp}\\
+	v_{{rw}_{tp}} &= v_{rw} - r(l_{tp} + x_{cg}) + ph_{tp}\\
+	w_{{rw}_{tp}} &= w_{rw} + q(l_{tp} + x_{cg})
+\end{align*}
+y de esa velocidad el ángulo de ataque y resbalamiento:
+\begin{align*}
+	\alpha_{tp} &= \arctan \frac{w_{{rw}_{tp}}}{u_{{rw}_{tp}}} \\
+	\beta_{tp} &= \arctan \frac{v_{{rw}_{tp}}}{u_{{rw}_{tp}}} 
+\end{align*}
+
+Finalmente, suponemos conocido para todo ángulo de ataque y resbalamiento los
+coeficientes de resistencia y sustentación, con lo que podemos obtener las
+fuerzas sobre el estabilizador horizontal:
+\begin{align*}
+	c_{X_{tp}} &=  c_{L_{tp}}\sin\alpha - c_{D_{tp}}\cos\alpha \\
+	c_{Z_{tp}} &= -c_{D_{tp}}\sin\alpha - c_{L_{tp}}\cos\alpha \\
+	V_{tp}^2 &= u_{{rw}_{tp}}^2  + v_{{rw}_{tp}}^2 +  w_{{rw}_{tp}}^2 \\
+	X_{tp} &= \frac{1}{2}\rho V_{tp}^2S_{tp}c_{X_{tp}} \\
+	Z_{tp} &= \frac{1}{2}\rho V_{tp}^2S_{tp}c_{Z_{tp}} \\
+\end{align*}
+	
+La única dificultad estriba, por tanto, en conocer los coeficientes aerodinámicos.
+Para estimarlos utilizamos el método que viene descrito en el \cite{NASATM84281}:
+\begin{enumerate}
+	\item Se pasa al programa la pendiente de sustentación $a$. Si no es así el
+		programa realiza una estimación a partir del alargamiento del
+		estabilizador:
+		\begin{equation*}
+			a = \frac{2\pi}{1 + \frac{2}{AR}} 
+		\end{equation*}
+	\item Se pasa al programa el máximo coeficiente de sustentación
+		$c_{L_max}$. Si no es así se supone que se produce la entrada en
+		pérdida para resbalamiento nulo al llegar a $\frac{\pi}{4}$.
+	
+	\item Se calcula para el actual ángulo de resbalamiento la pendiente
+		efectiva de la sutentación. 
+		\begin{equation*}
+			a_{ef} = a\cos^2(\beta + \Delta)
+		\end{equation*}
+		Si se pasó al programa la pendiente de sustentación calculada 
+		teniendo en cuenta el efecto de la flecha $\Delta$ entonces
+		deberá introducirse $\Delta=0$ aunque el estabilizador tenga
+		flecha no nula para evitar tenerlo en cuenta dos veces.
+
+	\item Con la pendiente efectiva se calcula el ángulo de entrada en
+		pérdida:
+		\begin{equation*}
+			\alpha_s = \frac{c_{L_{max}}}{a_{ef}}
+		\end{equation*}
+	\item Se define el siguiente ángulo auxiliar:
+		\begin{equation*}
+			\alpha_1 = 1.2\alpha_s
+		\end{equation*}
+	\item Se transporta el ángulo de ataque dentro del entorno
+		que va de $0$ a $\frac{\pi}{2}$. Para ello definimos el
+		siguiente ángulo de ataque:
+		\begin{align*}
+			\alpha_i &=  \alpha 	   &0\leq\alpha<\frac{\pi}{2} \\
+			\alpha_i &= -\alpha 	   &-\frac{\pi}{2}\leq\alpha<0 \\
+			\alpha_i &=  \pi - \alpha  &\frac{\pi}{2}\leq\alpha<\pi \\
+			\alpha_i &=  \pi + \alpha  &-\pi\leq\alpha<\frac{\pi}{2} \\
+		\end{align*}
+	
+	\item Se calcula un coeficiente de sustentación:
+		\begin{align*}
+			c_{L_0} &= a_{ef}\alpha_i & 0<\alpha_i<\alpha_s \\
+			c_{L_0} &= c_{L_{max}} - a_{ef}(\alpha_i - \alpha_s) &
+			\alpha_s \leq \alpha_i < \alpha_1 \\
+			c_{L_0} &= 0.8c_{L_{max}}
+			\left[1 - 
+				\left(
+					\frac{\alpha_i - \alpha_1}{\frac{\pi}{2} - \alpha_1}
+				\right)^2
+			\right] & \alpha_1 \leq \alpha_i \leq \frac{\pi}{2}
+		\end{align*}
+	\item Dependiendo del cuadrante, obtenemos el coeficiente de
+		sustentación final:
+		\begin{align*}
+			c_L &=  0.8c_{L_0} 	& -\pi \leq \alpha \leq	-\frac{\pi}{2}\\
+			c_L &= -c_{L_0} 	& -\frac{\pi}{2} < \alpha < 0 \\
+			c_L &= c_{L_0} 		& 0 \leq \alpha < \frac{\pi}{2} \\
+			c_L &= -0.8c_{L_0} 	& \frac{\pi}{2} \leq \alpha \leq \pi	
+		\end{align*}
+	\item Calculamos la componente no inducida del coeficiente de
+		resistencia, $c_{D_p}$. Como es frecuente que la polar de
+		resistencia del perfil que nos den sea no simétrica, se
+		contempla esa posibilidad y modificamos ligeramente el
+		memorandum
+		definiendo un nuevo ángulo:
+		\begin{align*}
+			\alpha_{iD} &= \pi + \alpha & -\pi \leq \alpha \leq -\frac{\pi}{2} \\
+			\alpha_{iD} &= -\alpha & -\frac{\pi}{2} < \alpha <-0.60  \\
+			\alpha_{iD} &= \alpha & -0.60 \leq \alpha < \frac{\pi}{2} \\
+			\alpha_{iD} &= \pi - \alpha & \frac{\pi}{2} \leq \alpha \leq \pi \\
+		\end{align*}
+	\item Calculamos $c_{D_p}$:
+		\begin{align*}
+			c_{D_p} &= i1(\alpha_{iD}) & -0.60 \leq \alpha_{iD} < -0.35 \\
+			c_{D_p} &= \delta_0 + \delta_1\alpha + \delta_2\alpha^2 & -0.35 \leq \alpha_{iD} \leq 0.35 \\
+			c_{D_p} &= i2(\alpha_{iD}) & 0.35 < \alpha_{iD} < 0.60 \\
+			c_{D_p} &= -0.1254 + 0.09415\alpha + 0.977525\sin^2\alpha & 0.60 \leq \alpha_{iD} \leq \frac{\pi}{2}
+		\end{align*}
+		Donde $i1$, $i2$ son dos funciones que interpolan los puntos 
+		-0.60, -0.55, -0.35 y 0.35, 0.55, 0.60 respectivamente mediante
+		splines cúbicas para asegurar una transición suave de la zona precisa de 
+		ángulos pequeños a la aproximada para ángulos grandes.
+		Los coeficientes $\delta_0$, $\delta_1$ y $\delta_2$ son suplidos
+		externamente, en cuyo caso se supone que llevan incluidos la
+		componente de velocidad inducida, por lo que se modifican de
+		acuerdo a ello automáticamente para no incluir su efecto dos
+		veces. En caso de no suplirse ninguno se asumirían los siguientes
+		valores por defecto:
+		\begin{align*}
+			\delta_0 &= 0.009  \\
+			\delta_1 &= 0. \\
+			\delta_2 &= 0.11
+		\end{align*}
+
+	\item La resistencia total, teniendo en cuenta la componente inducida:
+		\begin{equation*}
+			c_D = c_{D_p} + \frac{c^2_L}{0.8\pi AR}
+		\end{equation*}
+\end{enumerate}
+
+\section[Est. vertical]{Estabilizador vertical}
+El cálculo es totalmente análogo al estabilizador horizontal, lo único que varía
+es la velocidad relativa al viento:
+\begin{align*}
+	u_{{rw}_{fn}} &= u_{rw} - qh_{fn} \\
+	v_{{rw}_{fn}} &= v_{rw} - r(l_{fn} + x_{cg}) + h_{fn}p \\
+	w_{{rw}_{fn}} &= w_{rw} + q(l_{fn} + x_{cg})
+\end{align*}
+También cambia la definición de ángulo de ataque y resbalamiento:
+\begin{align*}
+	\alpha_{fn} &= \arctan \frac{v_{{rw}_{fn}}}{u_{{rw}_{fn}}} \\
+	\beta_{fn}  &= \arctan \frac{w_{{rw}_{fn}}}{u_{{rw}_{fn}}} 
+\end{align*}
+
+Finalmente las fuerzas son:
+\begin{align*}
+	c_{X_{fn}} &= c_{L_{fn}}\sin\alpha_{fn} - c_{D_{fn}}\cos\alpha_{fn} \\
+	c_{Y_{fn}} &= -c_{D_{fn}}\sin\alpha_{fn} - c_{L_{fn}}\cos\alpha_{fn} \\
+	V_{fn}^2 &= u_{{rw}_{fn}}^2 + v_{{rw}_{fn}}^2 + w_{{rw}_{fn}}^2 \\
+	X_{fn} &= \frac{1}{2}\rho V_{fn}^2S_{fn}c_{X_{fn}} \\
+	Y_{fn} &= \frac{1}{2}\rho V_{fn}^2S_{fn}c_{Y_{fn}} \\
+\end{align*}
+
+Donde los coeficientes aerodinámicos se calculan de la misma forma que para el
+estabilizador horizontal.
+\section{Controles}
+Las entradas del piloto se encuentran dadas por los siguientes valores 
+normalizados:
+\begin{itemize}
+	\item $\eta_{0p}$: Colectivo dado por el piloto. Varía entre 0 para
+		colectivo abajo y 1 para colectivo arriba.
+	\item $\eta_{1sp}$: Cíclico longitudinal. Varía entre -1 hacia adelante
+		y +1 hacia detrás.
+	\item $\eta_{1cp}$: Cíclico lateral. Varía entre entre +1 a la izquierda
+		y -1 a la derecha.
+	\item $\eta_{pp}$: Pedal. Varía entre +1 a la izquierda y -1 a la
+		derecha.
+\end{itemize}
+
+El siguiente paso es transformar los colectivos del piloto a través del sistema
+de control y de la unidad de mezcla. 
+Para modelar el efecto del sistema de control se especifica tres matrices $S$ 
+tal que los controles finales valgan:
+
+\begin{equation*}
+	\left\{\begin{array}{c}
+		\eta_0 \\
+		\eta_{1s} \\
+		\eta_{1c} \\
+		\eta_p \\
+	\end{array}\right\} = S_0\left\{\begin{array}{c}
+		\eta_{0p} \\
+		\eta_{1sp} \\
+		\eta_{1cp} \\
+		\eta_{pp} \\
+	\end{array}\right\} + S_1\left\{\begin{array}{c}
+        \dot{\phi}   \\
+        \dot{\theta} \\
+        r
+    \end{array}\right\} + S_2\left\{\begin{array}{c}
+	    \theta - \theta_0\\
+        \phi - \phi_0 \\
+        \psi - \psi_0 \\
+    \end{array}\right\}
+\end{equation*}
+
+Y los valores de referencia $\theta_0$, $\phi_0$ y $\psi_0$ pueden ser
+constantes o funciones respectivamente de los mandos $\eta_{1sp}$, $\eta_{1cp}$
+y $\eta_{pp}$. De esta forma es posible implementar un sistema de control 
+``Attitude Command/Attitude Hold'' tal como viene descrito en \cite{Test}.
+
+Es posible especificar un limite para el control automático, de forma que la
+velocidad angular no pueda influir en más de un determinado porcentaje sobre los
+controles. Para ello en los ficheros de entrada se ajusta la variable $L$. 
+Las diferencias entre los controles entre el antes y el después  de aplicar el
+sistema de controles es:
+\begin{align*}
+	e_0 &= \eta_{0p} - \eta_0 &  e_{1s} &= 2(\eta_{1sp} - \eta_{1s}) \\
+	e_{1c} &= 2(\eta_{1cp} - \eta_{1c}) &e_p &= 2(\eta_{pp} - \eta_{p}) 
+\end{align*}
+
+Limitamos el efecto de controles donde $\eta$ se puede substituir por cualquiera
+de los cuatro controles del helicóptero.
+
+\begin{equation*}
+\eta = \begin{cases}
+		\eta_p - L & \text{si $e<-L$} \\
+		\eta_p + L & \text{si $e>+L$} \\
+		\eta       & \text{si $-L \le e \le +L$} 
+	\end{cases} 
+\end{equation*}
+
+Finalmente se transforman los controles en los pasos de las palas en ejes rotor
+a través de la unidad de mezcla, para ello se
+especifican el vector $\vec{c}_1$ y la matriz $c_2$ tales que:
+
+\begin{equation*}
+	\left\{\begin{array}{c}
+		\theta_0 \\
+		\theta_{1s} \\
+		\theta_{1c} \\
+		\theta_{0_T} 
+	\end{array}\right\} = \vec{c}_1 + c_2
+	\left\{\begin{array}{c}
+		\eta_0 \\
+		\eta_{1s} \\
+		\eta_{1c} \\
+		\eta_p
+	\end{array}\right\}
+\end{equation*}
+
+
+\section{Motor}
+
+El motor controla la velocidad angular del rotor para que permanezca
+aproximadamente constante. El modelo que se encuentra implementado es 
+prácticamente el descrito en \cite{Padfield:book}. 
+
+Simplificamos la ley de control que rige la inyección de combustible en
+función de la velocidad angular, de la forma:
+
+\begin{equation*}
+    \frac{\bar{\omega}_f}{\bar{\Omega_i - 
+    \Omega}} = \frac{K_{e_1}}{1 + \tau_{e_1}s}
+\end{equation*}
+
+Donde $K_{e_1}$ es una constante de proporcionalidad y $\tau_{e_1}$ de tiempos.
+La anterior ecuación representa una linealización del sistema de combustible en
+torno a la velocidad de giro $\Omega_i$ que es la velocidad que el sistema motor
+intenta mantener. Una simplificación adicional consiste en suponer que la
+inyección de combustible depende únicamente de la velocidad angular.
+
+El comportamiento de la turbina viene dado en función del combustible 
+inyectado, y se simplifica en la forma:
+
+\begin{equation*}
+    \frac{\bar{Q}_1}{\bar{\omega}_f} = K_{e_2}\left(\frac{1 + \tau_{e_2}s}{1 +
+    \tau_{e_3}s}\right)
+\end{equation*}
+
+De nuevo $K_{e_2}$ es una constante de proporcionalidad y $\tau_{e_2}$ y
+$\tau_{e_3}$ son constantes de tiempos. $Q_1$ es el par de uno sólo de
+los motores. 
+
+La ecuación de giro del rotor es simplemente aplicando momentos:
+\begin{equation*}
+    \dot{\Omega} = \dot{r} + \frac{1}{I_R}\left[nQ_1 - (1 + P)(Q_R +
+    g_TQ_T)\right]
+\end{equation*}
+
+Donde $I_R$ representa la inercia del sistema de transmisión y depende de  
+$n$ que es el número de motores activos y $P$ es un factor para tener 
+en cuenta las pérdidas en el sistema de transmisión.
+
+Eliminando el combustible del anterior sistema de ecuaciones y escribiendolo
+en forma de sistema de ecuaciones diferenciales de primer orden, queda:
+
+\begin{align*}
+    -\dot{r} + \dot{\Omega} &= \frac{1}{I_R}\left[nQ_1 - (1 + P)(Q_R +
+    g_TQ_T)\right] \\
+    \dot{Q}_1 &= S \\
+    K_3\tau_2\dot{\Omega} + \tau_1\tau_3\dot{S} + (\tau_1 + \tau_3)\dot{Q}_1&=
+    -Q_1 + K_3(\Omega_i - \Omega)
+\end{align*}
+
+En las anteriores ecuaciones $K_3$ y $\tau_1$ se suponen constantes y $\tau_2$ 
+y $\tau_3$ pueden variar con un par adimensionalizado. Para ello se definen 3 
+potencias del motor:
+\begin{itemize}
+    \item $W_{to}$: potencia máxima de despegue, que es la máxima potencia que 
+        puede realizar el motor.
+    \item $W_{mc}$: potencia máxima continua.
+    \item $W_{id}$: potencia mínima, que es la potencia que se necesita para tener al 
+        motor en funcionamiento.
+\end{itemize}
+
+Para calcular las anteriores potencias en función de la altura definimos una 
+potencia a nivel del mar, es decir $\rho = \rho_0 = 1.225$, que llamamos
+$W_{{to}_0}$ y $W_{{mc}_0}$, y una exponente $n$  de forma que es:
+
+\begin{equation*}
+    W = W_0\left(\frac{\rho}{\rho_0}\right)^n
+\end{equation*}
+
+La densidad la calcula el simulador a partir de la presión y temperatura que 
+el programa externo utilizando la ley para gases perfectos:
+\begin{equation*}
+    \rho = \frac{P}{R_aT}
+\end{equation*}
+
+donde $R_a = 286.9 \frac{J}{Kg K}$ es una constante del aire.
+
+En cada instante de vuelo dividimos por la velocidad de giro del rotor las anteriores 
+potencias para tener 3 pares análogos: $Q_{to}$, $Q_{mc}$, $Q_{id}$. Nos aseguramos en 
+todo momento que el par de un motor $Q_1$ entre dentro del intervalo $[Q_{id},Q_{to}]$ y 
+definimos el par adimensional como:
+
+\begin{equation*}
+    \bar{Q} = \frac{Q_1}{Q_{mc}}
+\end{equation*}
+
+$\tau_2$ y $\tau_3$ quedan entonces definidas por trozos dando sus valores en
+3 puntos:
+\begin{align*}
+    \bar{Q} &= \frac{Q_{id}}{Q_{mc}} & \tau_2 &= a_2 & \tau_3 &= a_3 \\
+    \bar{Q} &= 1 & \tau_2 &= b_2 & \tau_3 &= b_3 \\
+    \bar{Q} &= \frac{Q_{to}}{Q_{mc}} & \tau_2 &= c_2 & \tau_3 &= c_3 
+\end{align*}
+
+\section{Tren de aterrizaje}
+Suponemos que el helicóptero se encuentra dotado de patines. Para evitar la
+penetración suelo-patín y simular la fuerza de rozamiento definimos una serie de
+puntos, por lo menos dos en cada patín y especificamos las propiedades de
+muelles y amortiguadores que determinan las fuerzas de reacción y un coeficiente
+de rozamiento que determinará el valor máximo de la fuerza de rozamiento, tal 
+como vemos en la figura \ref{fig:patines}.
+
+\begin{figure}
+  \input{Figuras/patines.pstex_t}
+  \caption{Magnitudes de los patines}
+  \label{fig:patines}
+\end{figure}
+
+El simulador comprueba en cada instante si existe penetración de algún punto de
+contacto en el suelo. Si en el instante anterior no existía ninguna penetración
+calcula un punto que llamamos de no deslizamiento que es la proyección sobre el
+suelo del punto que ha penetrado y a partir de la distancia entre la posición
+actual del punto y el punto de no deslizamiento y la velocidad de desplazamiento
+calculamos las fuerzas de reacción. De forma mas precisa: definimos los ejes
+locales de colisión como aquellos con origen en el punto de no deslizamiento,
+ejes x e y contenidos en el plano del suelo y arbitrarios y el eje z normal
+exterior al suelo y definimos un vector $\vec{e}$ de desplazamiento entre el
+punto de no deslizamiento y el punto de contacto cuyas componentes en ejes
+locales de colisión son $e_s,e_t,e_n$ y las componentes de la velocidad del
+punto de contacto en ejes de colisión vienen dadas por $vs,vt,vn$.
+
+Las fuerzas de reacción valen entonces:
+\begin{itemize}
+    \item Fuerza normal: si hay penetración tiene que ser $e_n<0$
+        \begin{equation*}
+            N = N_1 + N_2
+        \end{equation*}
+        \begin{align*}
+            N_1 &= -a e_n \\
+            N_2 &= \left\{\begin{array}{cl}
+                -b v_n & ,v_n<0 \\
+                0      & ,v_n\ge0
+            \end{array}\right.
+        \end{align*}
+    \item Fuerzas de rozamiento:
+        \begin{align*}
+            S &= -(c e_s + d v_s) \\
+            T &= -(e e_t + f v_t) 
+        \end{align*}
+        Definimos la fuerza de rozamiento máxima como:
+        \begin{equation*}
+            R_{max} = n N 
+        \end{equation*}
+        y el modulo de la fuerza de rozamiento calculada hasta ahora:
+        \begin{equation*}
+            R = \sqrt{S^2 + T^2}
+        \end{equation*}
+        Si es $R<R_{max}$ el cálculo de la fuerza de rozamiento finaliza en este
+        instante, si no entonces se modifican $S$ y $T$:
+        \begin{align*}
+            S &= R_{max}\frac{S}{R} \\
+            T &= R_{max}\frac{T}{R} 
+        \end{align*}
+        y además se modifica el punto de no deslizamiento, ya que se ha
+        producido deslizamiento, y su desplazamiento en ejes colisión viene dado por:
+        \begin{align*}
+            k &= \frac{R_{max}}{\sqrt{ (c e_s)^2 + (e e_t)^2 }} \\
+            x &: (1-k)e_s \\
+            y &: (1-k)e_t \\
+            z &: 0
+        \end{align*}
+\end{itemize}

@@ -1,0 +1,1507 @@
+\chapter[Lynx]{Ejemplo de aplicación: Lynx}
+
+\section[Descripción]{Breve descripción general e historia del Lynx}
+Se trata de un helicóptero militar fabricado por la compañía inglesa Westland.
+Voló por primera vez en 1971 y hoy en día se siguen utilizado y fabricando
+numerosas versiones, adaptadas según su uso, que va desde combate hasta
+transporte de tropas y vigilancia, siendo el helicóptero principal de la marina
+británica. Como características técnicas principales hay que decir que se trata
+de un helicóptero de pala no articulado, muy ágil y veloz (que ostenta el récord
+del mundo de velocidad para helicópteros) y que dispone de dos motores de
+aproximadamente 1000 caballos cada uno. Más adelante se concretan las
+características técnicas.
+
+\section[Fuentes]{Fuentes de información y validez de los datos}
+Resulta extremadamente difícil encontrar información publicada suficientemente
+detallada para poder utilizar en un simulador, incluso para un modelo sencillo
+que sólo incluye un grado de libertad de batimiento en cada pala. Las dos
+fuentes primarias de información que se han utilizado han sido
+\cite{Padfield:book} y \cite{NASATM104000}, que en realidad tratan de diferentes versiones del
+Lynx. En cualquier caso se ha intentado comparar los resultados que ambos
+documentos aportan y si alguno aportaba un dato que el otro no tenía siempre es
+mejor disponer de ese dato, que por lo menos aproximará al real, que ninguno.
+
+\section[Coeficientes del fuselaje]{Coeficientes aerodinámicos del fuselaje}
+A continuación se presentan los resultados según \cite{NASATM104000}, 
+que dan el área equivalente de las fuerzas y momentos sin ángulo de resbalamiento. Las unidades
+son $ft^2$ y $ft^3$ para fuerzas y momentos respectivamente y el ángulo
+de ataque se encuentra en grados. Las fuerzas se encuentran expresadas en
+componentes de ejes viento. Se disponen de dos tablas, una con la cola instalada
+y la otra sin la cola instalada, y ambas tablas sin el rotor. A pesar de que en
+el documento dice que son valores para el modelo a escala 1/5 se trata en realidad de
+los valores para el helicóptero real, por lo que no hace falta escalar.\\
+
+Fuerzas con la cola instalada:\\
+
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+$\alpha$ &L	&D	&Y	&m	&m	&l \\
+\hline	 
+21	&18.764	 &16.619 &1.850	 &-53.045 &-6.308  &-25.583 \\
+18	&15.694	 &14.945 &1.505	 &-58.579 &-9.310  &-22.590 \\
+15	&13.204	 &13.793 &1.623	 &-74.844 &-9.731  &-20.858 \\
+12	&9.546	 &12.548 &1.657	 &-68.209 &-11.909 &-16.770 \\
+9	&6.930	 &11.842 &0.690	 &-67.183 &-13.213 &-9.773  \\
+6	&4.062	 &11.447 &0.622	 &-70.908 &-14.155 &-6.367  \\
+3	&0.849	 &11.110 &0.488	 &-58.629 &-14.971 &0.875  \\	
+0	&-1.901	 &11.060 &0.572	 &-51.606 &-17.124 &4.373	\\
+-3	&-5.265	 &11.749 &0.774	 &-34.441 &-21.093 &10.866	\\
+-6	&-9.924	 &12.103 &0.606	 &0.572	  &-24.483 &19.479	\\
+-9	&-14.130 &12.675 &0.715	 &24.794  &-30.278 &27.023	\\
+-12	&-17.511 &13.768 &0.606	 &36.468  &-34.752 &36.930	\\
+-15	&-19.966 &15.559 &0.723	 &31.211  &-31.405 &38.024	\\
+-18	&-21.632 &17.990 &0.252	 &12.288  &-23.709 &33.028	\\
+-21	&-23.936 &20.286 &-0.782 &-36.098 &-12.742 &32.439	\\
+\hline
+\end{tabular}\\
+
+Fuerzas sin la cola instalada:\\
+
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+$\alpha$&L	 &D	 &Y	&m	  &n	   &l	\\	
+\hline
+21	&11.093	 &14.500 &1.951	&145.795  &-19.386 &-7.174 \\
+18	&8.823	 &13.356 &1.682	&121.716  &-19.193 &-5.433 \\
+15	&6.703	 &12.725 &1.463	&89.992	  &-18.495 &-4.399 \\
+12	&4.525	 &12.103 &1.489	&58.242	  &-18.966 &-3.381 \\
+9	&3.364	 &11.590 &0.723	&24.071	  &-17.847 &-0.168 \\
+6	&1.564	 &11.295 &0.597	&-8.688	  &-18.503 &0.429 \\
+3	&0.294	 &10.967 &0.463	&-42.817  &-17.098 &1.194 \\
+0	&-0.833	 &10.934 &0.488	&-75.997  &-18.377 &2.195 \\
+-3	&-2.237	 &11.421 &0.614	&-109.184 &-22.809 &3.886 \\
+-6	&-4.188	 &11.783 &0.412	&-137.384 &-25.643 &6.039 \\
+-9	&-6.434	 &12.161 &0.513	&-161.522 &-30.942 &9.108 \\
+-12	&-8.368	 &12.893 &0.681	&-183.364 &-39.857 &16.072 \\
+-15	&-10.412 &14.289 &1.161	&-204.987 &-48.209 &19.529 \\
+-18	&-13.095 &15.526 &1.489	&-224.727 &-56.661 &27.948 \\
+-21	&-16.207 &17.208 &1.161	&-245.576 &-61.606 &35.029 \\
+\hline
+\end{tabular}
+\\
+
+Para obtener valores aproximados a ángulos de ataque mayores buscamos datos de
+algún helicóptero similar, por ejemplo se disponen de datos para el UH-60 en el
+rango de ángulos de ataque y de resbalamiento de -90º a 90º, excepto para el
+momento de guiñada, bien en forma de tablas como en \cite{UH60:GenHel} o en 
+forma de funciones analíticas que ajustan a las tablas como en \cite{UH60:Simple}.
+Mediante estos datos podemos calcular el valor de los coeficientes para ángulos 
+de ataque de 90º y escalar los coeficientes comparando las áreas frontales y 
+laterales de los fuselajes del Lynx y del UH60. No hay que dar demasiada importancia
+a la exactitud de los datos a grandes ángulos de ataque ya que normalmente se 
+presentan a velocidades de vuelo bajas con lo que predominan las fuerzas de los 
+rotores frente a las fuerzas aerodinámicas.
+
+Finalmente, para el momento de guiñada utilizamos los valores genéricos
+suministrados por \cite{Padfield:book}, dados en forma de tabla.
+
+El simulador espera que los datos aerodinámicos del fuselaje se presenten en
+forma de tabla o funciones de coeficientes adimensionales referidos a ejes
+viento. 
+
+A continuación se muestran los coeficientes interpolados mediante splines
+cúbicas naturales, tal como se utilizan en el simulador, para todo el rango 
+de posibles ángulos.
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cDa.eps}
+	\caption{Coeficiente de resistencia}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cL.eps}
+	\caption{Coeficiente de sustentación}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cm.eps}
+	\caption{Coeficiente de cabeceo}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cDb.eps}
+	\caption{Coeficiente de resistencia}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cY.eps}
+	\caption{Coeficiente de fuerza lateral}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cl.eps}
+	\caption{Coeficiente de balance}
+\end{figure}
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_cn.eps}
+	\caption{Coeficiente de guiñada}
+\end{figure}
+
+\section[Coeficientes de la cola]{Coeficientes aerodinámicos de la cola}
+Para ángulos de ataque pequeño podemos obtener el comportamiento del
+estabilizador horizontal comparando los coeficientes de sustentación y momento
+para el fuselaje con cola y sin cola. Preferiblemente utilizamos los de momento
+ya que son más sensibles a la sustentación de la cola:
+\[M_{cc} = M_{sc} - (l_{tp} + x_{cg})L_c\]
+Donde $M_{cc}, M_{sc}$ son el momento con cola y el momento sin cola
+respectivamente y $L_c$ es la sustentación de la cola. Despejando y
+adimensionalizando con el área de la cola $S_{tp}=1.197m^2$ obtenemos el valor
+del coeficiente de sustentación de la cola $c_{L_{tp}}$. También obtenemos la
+resistencia comparando la resistencia del fuselaje con cola y sin cola.
+
+\begin{tabular}{|r|r|r|}
+\hline
+$\alpha(deg)$ & $c_{L_{tp}}$ & $c_{D_{tp}}$ \\
+\hline
+21 & 0.6156 & 0.1645 \\
+18 & 0.5767 & 0.1233 \\
+15 & 0.5217 & 0.0829 \\
+12 & 0.3967 & 0.0345 \\
+9 & 0.2854 & 0.0196 \\
+6 & 0.1944 & 0.0118 \\
+3 & 0.0506 & 0.0111 \\
+0 & -0.0740 & 0.0098 \\
+-3 & -0.2277 & 0.0255 \\
+-6 & -0.4234 & 0.0248 \\
+-9 & -0.5709 & 0.0399 \\
+-12 & -0.6705 & 0.0679 \\
+-15 & -0.7165 & 0.0986 \\
+-18 & -0.7052 & 0.1912 \\
+-21 & -0.6128 & 0.2389 \\
+\hline
+\end{tabular}
+\\
+
+Dados estos datos de sustentación y resistencia tenemos varias opciones:
+
+\begin{itemize}
+	\item Extendemos los datos tabulados al rango de ángulos de ataque de  
+		-180º a 180º y	corregimos los valores para resbalamiento no
+		nulo. Pasamos los resultados al simulador como una tabla para
+		cada coeficiente que el simulador utiliza para interpolar.
+
+	\item A partir de estos datos calculamos los coeficientes que definen el
+		comportamiento de la cola para ángulos de ataque pequeños, es
+		decir calculamos la pendiente de sustentación $a_{tp}$, el
+		coeficiente de sustentación para ángulo de ataque nulo
+		$c_{L_{{tp}_0}}$,
+		los coeficientes de resistencia $\delta_{tp_0}$, $\delta_{tp_1}$
+		y $\delta_{tp_2}$ y los valores de sustentación y resistencia
+		máximos: $c_{L_{max}}$ y $c_{D_{max}}$ respectivamente. Pasamos estos
+		datos junto con el alargamiento de la cola al simulador y éste,
+		mediante un modelo aproximado, calcula $c_L$ y $c_D$ para todo
+		ángulo de ataque y resbalamiento.
+\end{itemize}
+
+Eligiendo el segundo procedimiento, calculamos los coeficientes mediante ajustes
+por mínimos cuadrados (ver \cite{recipes}). A continuación se presentan los resultados del ajuste:
+\begin{align*}
+	a_{tp} &= 2.3663 \\
+	c_{{L_{tp}}_0} &= -0.1296 \\
+	c_{L_{{tp}_{max}}} &= 0.6 \\
+	\delta_{tp_0} &= 1.065\cdot10^{-3} \\
+	\delta_{tp_1} &= -8.470\cdot10^{-2} \\
+	\delta_{tp_2} &= 1.4698 
+\end{align*}
+
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/ajuste_cL.eps}
+	\caption{Coeficiente de sustentación del estabilizador horizontal}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/ajuste_cD.eps}
+	\caption{Coeficiente de resistencia del estabilizador horizontal}
+\end{figure}
+
+
+
+No tenemos ningún dato del estabilizador vertical del Lynx, pero podemos deducir
+la pendiente de la curva de sustentación suponiendo que para ángulos de
+resbalamiento pequeño debe ser capaz de contrarrestar el momento del fuselaje,
+queda aproximadamente:
+
+\begin{equation*}
+    a_{fn}=2.5
+\end{equation*}
+
+Suponiendo que debe extenderse la efectividad hasta, digamos los 18º
+aproximadamente de resbalamiento, podemos estimar:
+\begin{equation*}
+    c_{L_{fn}max}=0.9
+\end{equation*}
+
+A falta de otro dato mejor utilizamos el mismo coeficiente de resistencia para
+la cola vertical que para la horizontal.
+
+\section{Controles}
+Como no se disponían de datos acerca del control del Lynx se ha intentado
+estimar unos valores razonables. Para ello suponemos que debemos poder tener
+control suficiente desde vuelo en punto fijo hasta velocidad de avance de 160
+nudos y desde velocidad de descenso de 20 nudos hasta velocidad de ascenso de 20
+nudos. Además intentaremos mezclar los controles longitudinales y de cola con
+el colectivo para intentar simplificar la respuesta del helicóptero. A continuación
+se muestran datos de trimado para punto fijo desde 0 a 30 metros sobre el suelo,
+( verde) y vuelo de avance (azul) y vertical (rojo) para las anteriores
+velocidades.
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_controles_th0T.eps}
+    \caption{$\theta_{0_T}$ frente a $\theta_0$}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_controles_th1s.eps}
+    \caption{$\theta_{1s}$ frente a $\theta_0$}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[scale=0.6]{Figuras/Lynx_controles_th1c.eps}
+    \caption{$\theta_{1c}$ frente a $\theta_0$}
+\end{figure}
+
+Como se ve, es imposible satisfacer automáticamente todas las condiciones, así
+que hacemos lo siguiente:
+\begin{enumerate}
+    \item Ajustamos $\theta_0 = a + b\eta_{0p}$, para ello podemos exigir
+        que por ejemplo el helicóptero se encuentre en vuelo a punto 
+        fijo para un 60\% de colectivo del piloto, es decir:
+        \begin{align*}
+            \eta_{0p} &= 0.6 & \theta_0 &= 0.239
+        \end{align*}
+        y que cubramos todo el margen de operación del helicóptero:
+        \begin{align*}
+            \eta_{0p} &= 0 & \theta_0&\leq 0.207 \\
+            \eta_{0p} &= 1 & \theta_0&\geq 0.342
+        \end{align*}
+
+        Las anteriores condiciones se traducen en:
+        \begin{align*}
+            a &= 0.239 - 0.6b \\
+            b &\geq 0.2575 
+        \end{align*}
+
+        Dando un poco de margen al final tenemos:
+        \begin{equation*}
+            \theta_0 = 0.059 + 0.3\eta_{0p}
+        \end{equation*}
+    \item Ajustamos los cíclicos en la forma:
+        \begin{align*}
+            \theta_{1s} &= a_s + b_s\eta_{0p} + c_s\eta_{1s} \\
+            \theta_{1c} &= a_c + b_c\eta_{0p} + c_c\eta_{1c}
+        \end{align*}
+        para que sean en vuelo a punto fijo sea $\eta_{1sp} = \eta_{1cp} = 0$.
+        Los cíclicos apenas varían con $\theta_0$ así que hacemos:
+        \begin{equation*}
+            a_s =  b_s = a_c = b_c = 0
+        \end{equation*}
+        Y damos una sensibilidad razonable a los controles:
+        \begin{equation*}
+            c_s = c_c = 0.2
+        \end{equation*}
+
+    \item Ajustamos el colectivo de cola de la misma forma que en los apartados 
+        anteriores y queda:
+        \begin{equation*}
+            \theta_{0_T} = -0.061 + 0.441\eta_{0p} + 0.1\eta_{pp}
+        \end{equation*}
+\end{enumerate}
+
+A falta de mejores datos los valores para el control automático se han colocado
+por prueba y error para dar un manejo más o menos sencillo del helicóptero.
+
+\section{Fichero de entrada}
+A continuación se muestra cómo queda el fichero de entrada para el helicóptero Lynx.
+Guardaríamos el siguiente texto en un fichero de nombre \verb!Lynx.py! y lo
+cargaríamos con el parámetro \verb!--modelo=Lynx!
+
+\subsection{Preámbulo}
+Todos los ficheros deben de incluir éste preámbulo. Hay que tener en cuenta que
+los ficheros de definición de los helicópteros son ficheros de código fuente en
+python. Esto no quiere decir que sea necesario dominar el lenguaje ya que el
+formato del fichero de entrada es suficientemente simple como para que no sea
+necesario. Basta con utilizar un fichero de ejemplo y sustituir los valores
+numéricos correspondientes. Los casos mas complejos como la introducción de
+matrices, tablas para interpolaciones, etc\ldots se cubren más adelante.
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+# -*- coding: latin-1 -*-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#			NO TOCAR 		
+from modelo import Modelo
+from matematicas import *
+from numarray import *
+from util import *
+from integrador import *
+
+import logging
+
+modelo = Modelo()
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+\end{Verbatim}
+
+\subsection{Nombre}
+El nombre del helicóptero no es transcendente, sirve solo para mostrar por
+pantalla ciertos mensajes haciendo referencia al helicóptero. Como se ve el
+nombre del helicóptero es una cadena de texto, por lo que debe ir entre comillas
+dobles o comillas simples:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.nombre = "Lynx"
+\end{Verbatim}
+
+\subsection{Integrador}
+El integrador a utilizar. Los integradores disponibles se encuentran disponibles
+en el fichero \verb!integrador.py!. Para asignar el integrador se escribe el
+nombre y se acompaña de dos paréntesis al final. Los integradores disponibles
+son:
+\begin{itemize}
+	\item Euler
+	\item AdamsBashforth2
+    \item RungeKutta4
+    \item AdamsBashforth3
+    \item ABM2
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.integrador = AdamsBashforth2()
+\end{Verbatim}
+
+\subsection{Datos másicos del helicóptero}
+La masa del helicóptero en kilogramos y los
+momentos de inercia en kilogramos por metro al cuadrado. Se supone que el
+helicóptero es simétrico respecto al plano xz por lo que la matriz de inercia es
+de la forma:
+
+\begin{equation}
+	I = \left[\begin{array}{ccc}
+		I_{xx} & 0 & -I_{xz} \\
+		0 & I_{yy} & 0 \\
+		-I_{xz} & 0 & I_{zz}
+	\end{array}\right]
+\end{equation}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.M = 4313.7		
+modelo.Ixx = 2767.1		
+modelo.Iyy = 13904.5		
+modelo.Izz = 12208.8		
+modelo.Ixz = 2034.8		
+\end{Verbatim}
+
+\subsection{Rotor principal}
+\subsubsection{Posición y orientación del rotor}
+\begin{itemize}
+	\item \verb!gas! ($\gamma_s$): Es la inclinación del rotor positiva 
+		hacia delante. Debe darse en radianes. En este caso se sabe que
+		la inclinación es de cuatro grados por lo que se utiliza la
+		función \verb!rad! que pasa de radianes a grados.
+		Alternativamente se podría haber calculado aparte el ángulo en
+		radianes e introducirlo directamente.
+		
+	\item \verb!hR! ($h_R$): Distancia vertical del rotor al centro de
+		masas, en metros. Evidentemente positiva con el rotor por encima
+		del centro de masas.
+	\item \verb!xcg! ($x_{cg}$): Distancia horizontal del rotor al centro de
+		masas. Positiva cuando el rotor queda por detrás del centro de
+		masas. Unidades en metros.
+	\item \verb!h0! ($h_0$): Distancia desde el rotor hasta el suelo en
+		metros. 
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor.gas = rad(4)	
+modelo.rotor.hR = 1.274		
+modelo.rotor.xcg = -0.0198	
+modelo.rotor.h0 = 2.946		
+\end{Verbatim}
+
+\subsubsection{Descripción geométrica y másica del rotor}
+\begin{itemize}
+	\item \verb!Nb! ($N_b$): Número de palas del rotor. Actualmente las
+		ecuaciones del rotor sólo son correctas para cuatro palas.
+	\item \verb!R! ($R$): Radio del rotor en metros.
+	\item \verb!c! ($c$): Cuerda de los perfiles del rotor en metros.
+	\item \verb!Ibe! ($I_\beta$): Momento de inercia en kilogramos por metro
+		cuadrado de cada una de las palas del rotor respecto al eje de
+		batimiento. 
+	\item \verb!Kbe! ($K_\beta$): Muelle equivalente para el batimiento de
+		la pala, en Newtons por radián. Se puede obtener a partir de la
+		primera frecuencia de batimiento.
+	\item \verb!tht! ($\theta_t$): Torsión lineal de la pala en radianes,
+		por tanto torsión en la punta de la pala. Es decir, se supone que
+		el paso de los perfiles de la pala debido a la torsión es del tipo:
+		\begin{equation}
+			\theta = \theta_t\frac{r}{R}
+		\end{equation}
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor.Nb = 4		
+modelo.rotor.R = 6.4		
+modelo.rotor.c = 0.391		
+modelo.rotor.Ibe = 678.14	
+modelo.rotor.Kbe = 166352	
+modelo.rotor.tht = -0.14	
+\end{Verbatim}
+
+\subsubsection{Descripción aerodinámica de los perfiles de la pala}
+\begin{itemize}
+	\item \verb!a0! ($a_0$): pendiente de sustentación de los perfiles.
+		Se supone simétrico, lineal e independiente del número de Mach.
+		Evidentemente como si depende del número de Mach se selecciona
+		la pendiente de sustentación de una sección característica de la
+		pala, por ejemplo la sección $\frac{3}{4}$.
+
+	\item \verb!de0! ($\delta_0$)
+	\item \verb!de1! ($\delta_1$)
+	\item \verb!de2! ($\delta_2$): Términos de la polar de resistencia del
+		perfil (adimensionales), no en función del ángulo de ataque, sino en función del
+		coeficiente de sustentación del rotor principal. Es decir, el
+		coeficiente de sustentación de todos los perfiles del rotor se
+		supone de la forma:
+		\begin{equation}
+			\delta = \delta_0 + \delta_1 c_T + \delta_2 c_T^2
+		\end{equation}
+		Se pueden calcular a partir de la polar clásica dada en función
+		del ángulo de ataque de forma que el par del rotor sea el mismo.
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor.a0 = 6.0		
+modelo.rotor.de0 = 0.009	
+modelo.rotor.de1 = 0.0
+modelo.rotor.de2 = 37.983	
+\end{Verbatim}
+
+\subsection{Rotor de cola}
+\subsubsection{Posición y orientación}
+
+\begin{itemize}
+	\item \verb!hT! ($h_T$): distancia vertical en metros del rotor de cola
+		al centro de masas. Positiva con el rotor de cola por encima del
+		centro de masas.
+	\item \verb!lT! ($l_T$): distancia horizontal entre el rotor principal y
+		el rotor de cola, en metros.
+	\item \verb!K! ($K$): inclinación del rotor de cola en radianes.
+		Positivo según un giro por el eje $-x$.
+\end{itemize}
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor_cola.hT = 1.146		
+modelo.rotor_cola.lT = 7.66		
+modelo.rotor_cola.K = 0.0		
+\end{Verbatim}
+
+\subsubsection{Descripción geométrica y másica}
+
+\begin{itemize}
+	\item \verb!RT! ($R_T$): radio del rotor de cola en metros.
+	\item \verb!cT! ($c_T$): cuerda del rotor de cola en metros.
+	\item \verb!IbeT! ($I_{\beta_T}$): momento de inercia en kilogramos por
+		metro cuadrado de cada pala del rotor de cola respecto a su eje de
+		batimiento.
+	\item \verb!KbeT! ($K_{\beta_T}$): muelle equivalente del rotor de cola,
+		en newtons por radián.
+	\item \verb!k3! ($k_3$): Factor de acoplamiento entre el ángulo de
+		batimiento y el ángulo de paso. Adimensional.
+		\begin{align}
+			\theta =& k_3\beta \\
+			k_3 =& \tan \delta_3 \\
+		\end{align}
+	\item \verb!tht! ($\theta_{t_T}$): torsión lineal del rotor de cola.
+	\item \verb!gT! ($g_T$): relación entre la velocidad angular del rotor
+		de cola y del rotor principal. Adimensional. 
+		\begin{equation}
+			g_T = \frac{\Omega_T}{\Omega}
+		\end{equation}
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor_cola.RT = 1.106		
+modelo.rotor_cola.cT = 0.18001		
+modelo.rotor_cola.IbeT = 1.08926	
+modelo.rotor_cola.KbeT = 2511.24	
+modelo.rotor_cola.k3 = -1.		
+modelo.rotor_cola.tht = 0.0 		
+modelo.rotor_cola.gT = 5.8		
+\end{Verbatim}
+
+\subsubsection{Descripción aerodinámica}
+\begin{itemize}
+	\item \verb!a0T! ($a_{0_T}$): pendiente de sustentación de los perfiles
+		del rotor de cola, con las mismas hipótesis del rotor principal.
+	\item \verb!de0T!
+	\item \verb!de1T!
+	\item \verb!de2T!: coeficientes de la polar de resistencia de los
+		perfiles del rotor de cola, en función del coeficiente de
+		sustentación del rotor de cola:
+		\begin{equation}
+			\delta = \delta_{0_T} + \delta_{1_T}c_{T_T} +
+			\delta_{2_T}c_{T_T}^2
+		\end{equation}
+\end{itemize}
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.rotor_cola.a0T = 6.0		
+modelo.rotor_cola.de0T = 0.008		
+modelo.rotor_cola.de1T = 0.0
+modelo.rotor_cola.de2T = 5.334		
+\end{Verbatim}
+
+\subsection{Fuselaje}
+\subsubsection{Descripción geométrica}
+\begin{itemize}
+	\item \verb!Ss! ($S_s$): Área lateral de fuselaje en metros cuadrados.
+	\item \verb!Sp! ($S_p$): Área frontal de fuselaje en metros cuadrados.
+		Tanto $S_s$ como $S_p$ no necesitan ser los valores exactos, sino
+		tan sólo los valores de superficie que se han utilizado para 
+		adimensionalizar los coeficientes $c_Y$, $c_l$, $c_m$ y $c_D$,
+		$c_L$, $c_m$ respectivamente.
+	\item \verb!lf! ($l_f$): longitud del fuselaje en metros. De nuevo basta con que
+		sea la longitud utilizada en la adimensionalización de los
+		coeficientes de momento.
+	\item \verb!xca! ($x_{ca}$): posición horizontal del centro aerodinámico
+		del fuselaje, positivo por delante del centro de masas. En
+		metros.
+	\item \verb!zca! ($z_{ca}$): posición vertical del centro aerodinámico,
+		positivo debajo del centro de masas. En metros.
+	\item \verb!ht! ($h_t$): distancia del centro de masas al suelo.
+\end{itemize}
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.fuselaje.Ss = 32.	
+modelo.fuselaje.Sp = 24.	
+modelo.fuselaje.lf = 12.
+modelo.fuselaje.xca = 0.139
+modelo.fuselaje.zca = 0.190	
+modelo.fuselaje.ht = 1.67
+\end{Verbatim}
+
+\subsubsection{Coeficientes aerodinámicos del fuselaje}
+
+La descripción aerodinámica del fuselaje es la que presenta la estructura más
+compleja de todo el archivo del modelo. Para empezar existen dos métodos de
+describir el fuselaje, denominados FuselajeA y FuselajeB. Para utilizar cada uno
+de ellos se utiliza una de las dos opciones siguientes:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.fuselaje.aero = FuselajeA(
+	...
+)
+\end{Verbatim}
+o bien:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.fuselaje.aero = FuselajeB
+	...
+)
+\end{Verbatim}
+
+FuselajeB es el método con la sintaxis más sencilla y el que presenta mayor
+generalidad ya que sólo requiere que se le pase una función válida de python que
+acepte como argumentos el ángulo de ataque y el ángulo de resbalamiento del
+fuselaje y devuelve una tupla con los 6 coeficientes aerodinámicos: $c_D$,
+$c_L$, $c_Y$, $c_l$, $c_m$, $c_n$ (en este orden). Evidentemente es un método
+que requiere un conocimiento más profundo de programación en python. Por ello, y
+porque a veces se tiene un conjunto reducido de datos sobre el fuselaje, se
+proporciona el modelo de fuselaje A, que requiere únicamente la sustitución de
+los valores numéricos de un fichero de ejemplo. Aunque para el helicóptero Lynx
+se utiliza el modelo de fuselaje A aquí se muestra también el ejemplo del
+BlackHawk:
+
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+def aero(al, be):
+	if al<-pi/2:
+		al += pi
+	elif al>pi/2:
+		al -= pi
+	if be<-pi/2:
+		be += pi
+	elif be>pi/2:
+		be -= pi
+
+	Sal, S2al, Sbe, S2be, S4be =\
+		map(sin, [al, 2*al, be, 2*be, 4*be])
+	Cal, C2al, Cbe, C2be, C4be =\
+		map(cos, [al, 2*al, be, 2*be, 4*be])
+
+	cD = 1.3944*(Sal)**2 - 0.6435*Cal + 2.4806 +\
+	     0.0456*C4be - 1.597*C2be -\
+	     8.2893e-9*(be**4)
+	cL = 0.4546*Sal + 0.6730*S2al -\
+	     1.2680*(Sal)**2 - 1.3029*Cal + 1.3215 +\
+	     0.00127*be - 0.0465*S4be +\
+	     0.0005*(be**2)
+	cY = -0.0802*Sbe -0.1627*S2be + 0.0182*S4be
+	
+	if be<=rad(10):
+		cl = 0.0
+	elif rad(10)<be and be<=rad(25):
+		cl = sign(be)*0.02098*(Cbe**4) - 0.0197
+	else:
+		cl = 0.0283*Sbe +\
+		     sign(be)*(0.0022*C4be -\
+		     0.0134*(Cbe)**3 +\
+		     0.0338*(Cbe)**4 - 0.0308)
+	
+	cm = 0.0007 + 0.2291*S2al + 0.1343*(Sal)**2 +\
+	     0.1095*Cal - 0.1606*(Cbe)**3 + 0.0176
+	
+	if be<=rad(20):
+		cn = 0.0128*S2be - 0.0195*S4be -\
+		     8.4339e-5
+	else:
+		cn = -0.0101*S2be +\
+		     sign(be)*(0.0309*(C4be**4) - 0.0197)
+	
+	return cD, cL, cY, cl, cm, cn
+
+modelo.fuselaje.aero = FuselajeB(aero)
+\end{Verbatim}
+
+A continuación se muestra el modelo de fuselaje tal como se usa en el modelo
+Lynx. La sintaxis es un poco más complicada, pero como ventajas presenta que no
+requiere saber programar en python y además a partir de pocos datos
+aerodinámicos calcula (de forma muy aproximada) los coeficientes aerodinámicos
+para todo ángulo de ataque. La sintaxis es de la forma:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.fuselaje,aero = FuselajeA(
+	nombre1 = valor1,
+	nombre2 = valor2,
+	...
+	nombreN = valorN
+)
+
+\end{Verbatim}
+
+Y el listado tal como aparece en el fichero del Lynx es, parte a parte:
+\subsubsection{Declaración del modelo de fuselaje}
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.fuselaje.aero = FuselajeA( 
+\end{Verbatim}
+
+\subsubsection{Unidades}
+Puede ser que los datos que se poseen del fuselaje den los coeficientes en
+función del ángulo de ataque en grados. Como pasar dichos valores a radianes
+puede ser muy pesado, se da la opción de introducir esos valores en grados o
+radianes, con tal de que se indique en el fichero del modelo. En este caso se
+utilizan grados, por lo que el valor que se le asigna \verb!unidades! es una
+cadena de texto llamada \verb!deg!. Hay que notar que es una cadena de texto, por
+lo que debe ir entre comillas dobles o simples.
+\begin{Verbatim}[frame=single,framerule=1mm]
+	unidades = 'deg',		
+\end{Verbatim}
+Si se hubiesen utilizado radianes se habría indicado:
+\begin{Verbatim}[frame=single,framerule=1mm]
+	unidades = 'rad',		
+\end{Verbatim}
+					
+\subsubsection{Valores de los coeficientes para ángulos de 90 grados}
+\begin{Verbatim}[frame=single,framerule=1mm]
+	cDa90 = 0.3480,			
+	cDb90 = 0.4784,			
+	cm90 =  0.03,			
+	cl90 =  0.01,			
+	cn90 =  0.1,			
+\end{Verbatim}
+\subsubsection{Rango de los ángulos de ataque y resbalamiento para los cuales se
+utilizan valores precisos}
+Fuera de este rango se aproxima el valor de los coeficientes utilizando los
+valores que anteriormente se han introducido para 90 grados. Como utilizamos
+ángulos en grados, estos valores van en grados.
+\begin{Verbatim}[frame=single,framerule=1mm]
+	al1 = -21,
+	al2 =  21,
+	
+	be1 = -21,
+	be2 =  21,
+\end{Verbatim}
+\subsubsection{Valores de los coeficientes para ángulos pequeños}
+La sintaxis es:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+	cDa = Lista(
+		angulo1, valor1,
+		angulo2, valor2,
+		...
+	),
+	cDb = Lista(
+		...
+	),
+	cm = Lista(
+		...
+	),
+	cL = Lista(
+		...
+	),
+	cl = Lista(
+		...
+	),
+	cY = Lista(
+		...
+	),
+	cn = Lista(
+		...
+	),
+\end{Verbatim}
+donde:
+\begin{itemize}
+	\item \verb!cDa! ($c_{D_\alpha}$): coeficiente de resistencia para
+		ángulo de resbalamiento nulo, en función de ángulo de ataque.
+	\item \verb!cDa! ($c_{D_\beta}$): coeficiente de resistencia para
+		ángulo de ataque nulo, en función de ángulo de resbalamiento.
+	\item \verb!cm! ($c_m$): coeficiente de momento de cabeceo en función de
+		ángulo de ataque.
+	\item \verb!cL! ($c_L$): coeficiente de sustentación en función de
+		ángulo de ataque.
+	\item \verb!cl! ($c_l$): coeficiente de momento de balance, en función
+		de ángulo de resbalamiento.
+	\item \verb!cY! ($c_Y$): coeficiente de fuerza lateral, en función
+		de ángulo de resbalamiento.
+	\item \verb!cn! ($c_n$): coeficiente de momento de guiñada, en función
+		de ángulo de resbalamiento.
+\end{itemize}
+Y a continuación el listado tal como se encuentra en el fichero del modelo del
+Lynx. De nuevo expresamos los ángulos en grados tal como se especificó en
+\verb!unidades!. También notamos la presencia de un paréntesis al final que
+cierra el paréntesis que se abrió con \verb!FuselajeA(!
+
+%\begin{Verbatim}[frame=single,framerule=1mm]
+\begin{Verbatim}[frame=single,framerule=1mm]
+	cDa = Lista(
+		-21, 0.06661,
+		-18, 0.06010,
+		-15, 0.05531,
+		-12, 0.04991,
+		 -9, 0.04707,
+		 -6, 0.04561,
+		 -3, 0.04421,
+		  0, 0.04233,
+		  3, 0.04245,
+		  6, 0.04372,
+		  9, 0.04486,
+		 12, 0.04685,
+		 15, 0.04926,
+		 18, 0.05170,
+		 21, 0.05613 
+	),
+	
+	cDb = Lista(
+		-21, 0.05532,
+		-18, 0.04096,
+		-15, 0.02863,
+		-12, 0.01842,
+		 -9, 0.01040,
+		 -6, 0.00464,
+		 -3, 0.00116,
+		  0, 0.00000,
+		  3, 0.00116,
+		  6, 0.00464,
+		  9, 0.01040,
+		 12, 0.01842,
+		 15, 0.02863,
+		 18, 0.04096,
+		 21, 0.05532 
+	),
+
+	cm = Lista(
+		-21, -0.02415,
+		-18, -0.02210,
+		-15, -0.02015,
+		-12, -0.01803,
+		 -9, -0.01588,
+		 -6, -0.01351,
+		 -3, -0.01074,
+		  0, -0.00747,
+		  3, -0.00421,
+		  6, -0.00085,
+		  9,  0.00237,
+		 12,  0.00573,
+		 15,  0.00875,
+		 18,  0.01197,
+		 21,  0.01433 
+	),
+	
+	cL = Lista(
+		-21, -0.02415,
+		-18, -0.02210,
+		-15, -0.02015,
+		-12, -0.01803,
+		 -9, -0.01588,
+		 -6, -0.01351,
+		 -3, -0.01074,
+		  0, -0.00747,
+		  3, -0.00421,
+		  6, -0.00085,
+		  9,  0.00237,
+		 12,  0.00573,
+		 15,  0.00875,
+		 18,  0.01197,
+		 21,  0.01433 
+	),
+		
+	cY = Lista(	
+		-21,  0.17547,
+		-18,  0.15138,
+		-15,  0.12677,
+		-12,  0.10178,
+		 -9,  0.07653,
+		 -6,  0.05110,
+		 -3,  0.02557,
+		  0,  0.00000,
+		  3, -0.02557,
+		  6, -0.05110,
+		  9, -0.07653,
+		 12, -0.10178,
+		 15, -0.12677,
+		 18, -0.15138,
+		 21, -0.17547 
+	),
+	
+	cl = Lista(
+		-21, -0.00697,
+		-18, -0.00472,
+		-15, -0.00270,
+		-12, -0.00097,
+		 -9,  0.00000,
+		 -6,  0.00000,
+		 -3,  0.00000,
+		  0,  0.00000,
+		  3,  0.00000,
+		  6,  0.00000,
+		  9,  0.00000,
+		 12,  0.00097,
+		 15,  0.00270,
+		 18,  0.00472,
+		 21,  0.00697 
+	),
+	
+	cn = Lista(
+		-21, -0.01704,
+		-18, -0.01461,
+		-15, -0.01217,
+		-12, -0.00974,
+		 -9, -0.00730,
+		 -6, -0.00487,
+		 -3, -0.00243,
+		  0,  0.00000,
+		  3,  0.00243,
+		  6,  0.00487,
+		  9,  0.00730,
+		 12,  0.00974,
+		 15,  0.01217,
+		 18,  0.01461,
+		 21,  0.01704
+	)
+)
+\end{Verbatim}
+%\end{Verbatim}
+\subsection{Estabilizador horizontal}
+
+\subsubsection{Posición y orientación}
+\begin{itemize}
+	\item \verb!ltp! ($l_{tp}$): distancia horizontal desde el rotor al
+		estabilizador horizontal en metros.
+	\item \verb!htp! ($h_{tp}$): distancia vertical desde el centro de masas
+		al estabilizador horizontal, positiva con el estabilizador
+		horizontal por encima del centro de masas, en metros.
+	\item \verb!S_{tp}! ($S_{tp}$): Área del estabilizador horizontal en
+		metros cuadrados.
+	\item \verb!altp0! ($\alpha_{tp_0}$): Ángulo de ataque del estabilizador
+		horizontal, con  helicóptero sin ángulo de ataque. En radianes.
+\end{itemize}
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.estabilizador_horizontal.ltp = 7.66			
+modelo.estabilizador_horizontal.htp = 1.146			
+modelo.estabilizador_horizontal.Stp = 1.197			
+modelo.estabilizador_horizontal.altp0 = rad(-1.0)		
+\end{Verbatim}
+\subsubsection{Propiedades aerodinámicas}
+
+De la misma forma que con el fuselaje tenemos varias posibilidades para elegir:
+perfilA, perfilB, perfilC. La más general es el modelo de perfil C, ya que
+permite especificar las dos funciones que para todo ángulo de ataque devuelven
+los coeficientes de resistencia y sustentación. Su sintaxis es:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+	modelo.estabilizador_horizontal.aero = perfilC(
+			cL = funcion_cL,
+			cD = funcion_cD
+	)
+\end{Verbatim}
+
+Donde \verb!funcion_cL! y \verb!funcion_cD! son funciones escritas en python que
+aceptan un único valor, el ángulo de ataque y devuelven un único valor, el
+coeficiente que corresponda.
+
+Para el fichero del modelo Lynx utilizamos el modelo de perfil A, que es el
+recomendado. El significado de los parámetros que intervienen es:
+\begin{itemize}
+	\item \verb!AR! ($A$): alargamiento del estabilizador. 
+	\item \verb!a! ($a$): pendiente de sustentación.
+	\item \verb!cLmax! ($c_{L_{max}}$): máximo coeficiente de sustentación.
+	\item \verb!de0! ($\delta_0$)
+	\item \verb!de1! ($\delta_1$)
+	\item \verb!de2! ($\delta_2$): coeficientes de la polar del perfil, para
+		obtener el coeficiente de resistencia del perfil en función del
+		ángulo de ataque:
+		\begin{equation}
+			c_D = \delta_0 + \delta_1\alpha + \delta_2\alpha^2
+		\end{equation}
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.estabilizador_horizontal.aero = perfilA(			
+		AR  =  2.7, 		
+		a   =  2.3663,		
+		cLmax = 0.6,		
+		de0 =  1.065e-3,	
+		de1 = -8.4703e-2,	
+		de2 =  1.46981
+)
+\end{Verbatim}
+
+Si no se obtienen datos suficientes del perfil se puede indicar únicamente el
+alargamiento y el programa calculará automáticamente el resto de parámetros. Por
+ejemplo, si hubiésemos hecho:
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.estabilizador_horizontal.aero = perfilA(			
+		AR  =  2.7, 		
+\end{Verbatim}
+
+los otros parámetros habrían sido calculados automáticamente.
+
+\subsection{Controles}
+
+\begin{itemize}
+	\item \verb!c0! ($\vec{c}_0$): pasos del rotor para controles nulos.
+	\item \verb!c1! ($c_1$): sensibilidad y mezcla de los controles.
+	\item \verb!S0! ($S_0$)
+	\item \verb!S1! ($S_1$)
+	\item \verb!S2! ($S_2$): matrices para el sistema de control automático.
+    \item \verb!th_0! ($\theta_0$): cabeceo marcado por el sistema de control. 
+        Se puede especificar como una constante o como una función del mando
+        longitudinal.
+    \item \verb!fi_0! ($\phi_0$): balance marcado por el sistema de control. 
+        Se puede especificar como una constante o como una función del mando
+        lateral.
+    \item \verb!ch_0! ($\psi_0$): guiñada marcada por el sistema de control.
+        Se puede especificar como una constante o como una función de los pedales.
+	\item \verb!L! ($L$): límite del sistema automático de control.
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.controles.c0 = array([ 
+              0.059,    
+              0.000,    
+              0.000, 
+             -0.061, 
+            ], type='Float64')
+
+
+modelo.controles.c1 = array([
+            [ 0.300, 0.000,  0.000,  0.000 ],
+            [ 0.000, 0.200,  0.000,  0.000 ],
+            [ 0.000, 0.000,  0.200,  0.000 ],
+            [ 0.441, 0.000,  0.000,  0.100 ],
+            ], type='Float64')
+
+modelo.controles.S0 = array([
+    [ 1.0000, 0.0000, 0.0000, 0.0000 ],
+    [ 0.0000, 0.0000, 0.0000, 0.0000 ],
+    [ 0.0000, 0.0000, 0.0000, 0.0000 ],
+    [ 0.0000, 0.0000, 0.0000, 1.0000 ]], type='Float64')
+
+modelo.controles.S1 = array([
+    [ 0.0000,  0.0000, 0.0000 ],
+    [ 0.0000, -2.5000, 0.0000 ],
+    [ 2.5000,  0.0000, 0.0000 ],
+    [ 0.0000,  0.0000, 0.6000 ]], type='Float64')
+
+modelo.controles.S2 = array([
+    [  0.0000,  0.0000, 0.0000 ],
+    [ -2.5000,  0.0000, 0.0000 ],
+    [  0.0000,  2.5000, 0.0000 ],
+    [  0.0000,  0.0000, 0.0000 ]], type='Float64')
+
+modelo.controles.th_0 =  lambda et1sp:  0.0603 + 1.4*et1sp
+modelo.controles.fi_0 =  lambda et1cp: -0.0476 - 1.4*et1cp
+modelo.controles.ch_0 =  0.0
+
+modelo.controles.L = 0.2
+\end{Verbatim}
+
+Para introducir funciones se recuerda que puede ser cualquier tipo de codigo
+en python válido, y también se pueden especificar mediante listas, de forma 
+que se podría haber escrito (y hubiese sido equivalente):
+\begin{Verbatim}[frame=single,framerule=1mm]
+modelo.controles.th_0 = Lista( 0,  0.0603,
+                               1,  1.4603 )
+modelo.controles.fi_0 = Lista( 0, -0.0476,
+                               1, -1.4476 )
+\end{Verbatim}
+
+\subsection{Motor}
+\begin{itemize}
+    \item \verb!n! ($n$): Número de motores.
+	\item \verb!Omi! ($\Omega_i$): Velocidad nominal de rotación del rotor.
+    \item \verb!Wto! ($W_{to_0}$): Máxima potencia de despegue a nivel del mar.
+    \item \verb!Wmc! ($W_{mc_0}$): Máxima potencia continua a nivel del mar.
+    \item \verb!x! ($x$): Coeficiente de variación de potencia disponible con la
+        altura.
+    \item \verb!Wid! ($W_{id}$): Mínima potencia de operación del motor.
+    \item \verb!K_3! ($K_3$): rigidez del motor.
+    \item \verb!P! ($P$): Pérdidas del sistema de transmisión del rotor y rotor de cola.
+    \item \verb!Irt! ($I_R$): Inercia del sistema de transmisión en función del
+        número de motores activos.
+    \item \verb!tae1! ($\tau_1$): Primera constante de tiempos del motor.
+    \item \verb!a2! ($a_2$)
+    \item \verb!b2! ($b_2$)
+    \item \verb!c2! ($c_2$): Parámetros para la segunda constante de tiempos del 
+        motor $\tau_2$.
+    \item \verb!a3! ($a_3$)
+    \item \verb!b3! ($b_3$)
+    \item \verb!c3! ($c_3$): Parámetros para la tercera constante de tiempos del 
+        motor $\tau_3$.
+\end{itemize}
+
+\begin{Verbatim}[frame=single,framerule=1mm]
+
+modelo.motor.Omi = 35.63        
+                                
+modelo.motor.Wto_0 = 746000       
+modelo.motor.Wmc_0 = 664000
+modelo.motor.x     = 0.85
+modelo.motor.Wid   = 1000         
+
+modelo.motor.K3 = 65e3          
+
+modelo.motor.n = 2              
+modelo.motor.P  = 0.1           
+                    
+modelo.motor.Irt = [            
+                3085.069,       
+                3344.716,       
+                3344.716]       
+
+modelo.motor.tae1 = 0.1
+
+modelo.motor.a2 = 0.1
+modelo.motor.b2 = 0.1
+modelo.motor.c2 = 0.1
+
+modelo.motor.a3 = 0.1
+modelo.motor.b3 = 0.1
+modelo.motor.c3 = 0.1
+\end{Verbatim}
+
+\section{Trimado}
+A continuación se comentan resultados de trimado del Lynx, a partir de los
+cuales se comenta sobre la validez del modelo.
+
+\subsection{Vuelo a punto fijo}
+A continuación se presenta la posición de colectivo necesaria para mantener
+vuelo a punto fijo a diferentes alturas sobre el suelo y la variación del 
+resto de los controles con el el colectivo.
+
+Como se puede ver en la gráfica \ref{fig:colectivo altura}, el colectivo (en radianes) 
+varía con la altura (en metros) debido al efecto suelo. Para valores mayores al radio 
+del rotor el efecto suelo apenas se nota. La verdadera distancia del rotor al suelo 
+es la altura de la figura ($z$) más la altura del fuselaje ($h_0=2.496m$)
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_z.eps}
+	\caption{Colectivo en función de la altura}
+    \label{fig:colectivo altura}
+\end{figure}
+
+Para determinar los valores de las ganancias de los mandos calculamos la
+variación de $\theta_{0_T}$, $\theta_{1c}$ y $\theta_{1s}$ con el colectivo.
+Como podemos ver $\theta_{1s}$ no es exactamente cero debido al pequeño
+desplazamiento del centro de masas respecto al centro del rotor, por lo que
+necesita compensar el ligero momento que se produce. El aún más pequeño valor de
+$\theta_{1c}$ es debido al acoplamiento lateral-longitudinal de la respuesta de
+del helicóptero, o dicho de otro modo, debido a que la frecuencia de batimiento
+de las palas no es exactamente la de giro del rotor, el desfase entre el paso y
+el batimiento no es exactamente de 90º, por lo que se produce ese pequeño
+acoplamiento.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0T_th0.eps}
+	\caption{Colectivo de cola en función de colectivo}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th1c_th1s_th0.eps}
+	\caption{Cíclico en función de colectivo}
+\end{figure}
+
+\subsection{Efecto suelo}
+
+A continuación se presenta la variación del efecto suelo para diferentes
+velocidades, de 0 a 25m/s, y alturas, de 0 a 10m. Como se puede ver, al aumentar
+la velocidad disminuye en general el requerimiento de colectivo pero también los
+beneficios del efecto suelo. Para los primeros 10 m/s ambos efectos se cancelan,
+lo cual es afortunado porque permite realizar una transición sencilla desde
+punto fijo a vuelo en avance en las cercanías del suelo.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_V_z.eps}
+	\caption{Colectivo en función de velocidad y altura}
+\end{figure}
+
+\subsection{Vuelo vertical}
+A continuación (figura \ref{fig:velocidad velocidad ascensional}) se muestran 
+resultados para diferentes velocidades 
+ascensionales $V_a (m/s)$, en ausencia de efecto suelo. Se puede apreciar en la
+gráfica de la velocidad inducida frente a velocidad ascensional como al haber
+aplicado la TCMM tenemos una transición suave desde el régimen de vuelo a punto
+fijo hasta molinete frenante, pasando por autorrotación.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_la0_Va.eps}
+	\caption{Velocidad inducida frente a velocidad ascensional}
+    \label{fig:velocidad velocidad ascensional}
+\end{figure}
+
+Para el vuelo vertical la expresión del coeficiente de sustentación del rotor
+es:
+\[
+c_T = \frac{a_0s}{2}\left[\frac{\theta_0}{3} + \frac{\mu_z-\lambda_0}{2} +
+\frac{\theta_t}{4}\right] 
+\]
+
+Aproximadamente permanece $c_T$ constante, siendo la pequeña variación debida a
+la resistencia del fuselaje, por lo que $\theta_0$ varía proporcionalmente a $\mu_z
+- \lambda_0$, como se ve en la figura.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_Va.eps}
+	\caption{Colectivo frente a velocidad ascensional}
+\end{figure}
+
+Se puede despejar también $\theta_{0_T}$ en función de $\theta_0$, pero la
+relación es bastante más complicada, lo importante es que como muestra la figura
+la relación no es lineal.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0T_th0_Va.eps}
+	\caption{Colectivo de cola frente a colectivo para diferentes
+	velocidades ascensionales}
+\end{figure}
+
+
+\subsection{Vuelo en avance}
+Por último, el régimen mas común en la operación del helicóptero. Si no se especifica
+nada se asume que los ángulos se encuentran en radianes y la velocidad en nudos. 
+Si todavía había esperanzas de encontrar unas ganancias de controles sencillas que nos
+mantuviesen el helicóptero cercano al trimado se desvanecen ahora, ya que
+observando la posición del colectivo frente a la velocidad 
+(figura \ref{fig:colectivo velocidad avance}) vemos que hay el
+mismo colectivo para diferentes velocidades. El motivo es que según aumenta la
+velocidad del helicóptero aumenta la eficiencia del rotor al empezar a
+comportarse éste de forma similar a un ala, por lo que para un mismo $c_T$
+disminuye la necesidad de $\theta_0$, por lo que hay una tendencia inicial de
+$\theta_0$ a bajar con la velocidad. Sin embargo, la resistencia del fuselaje y
+del rotor aumenta también con la velocidad, de forma que esta tendencia
+domina para velocidades altas, pero en algún punto entre velocidad nula y
+velocidad alta se alcanza el mínimo.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_V.eps}
+	\caption{Colectivo para diferentes velocidades de avance}
+    \label{fig:colectivo velocidad avance}
+\end{figure}
+
+Siempre es conveniente comprobar que la velocidad inducida adopta la típica forma. 
+En este caso vemos también como gracias al modelo de estela se predice correctamente
+la velocidad no uniforme, ya que es aproximadamente:
+\begin{equation*}
+    \lambda_{1c} = \lambda_0\tan\frac{|\chi|}{2}
+\end{equation*}
+Donde $\chi$ es el ángulo de la estela. Ver figura \ref{fig:inducida avance}.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_la0_la1c_V.eps}
+    \caption{$\lambda_0$ y $\lambda_{1c}$ en función de velocidad de avance}
+    \label{fig:inducida avance}
+\end{figure}
+
+El otro control que más influye sobre el vuelo en avance es el cíclico
+longitudinal, debido a que es necesario mantener inclinado el helicóptero hacia
+adelante para que la tracción del rotor compense la resistencia del fuselaje. El
+cabeceo $\theta$ necesario queda muy bien aproximado entonces por
+$\theta=-\frac{D}{Mg}$, por lo que, como se ve en la figura \ref{fig:cabeceo velocidad}, tiene una forma 
+parabólica.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th_V.eps}
+	\caption{Cabeceo en grados para diferentes velocidades de avance}
+    \label{fig:cabeceo velocidad}
+\end{figure}
+
+Debido a la inestabilidad del momento del fuselaje, al aumentar el cabeceo
+aumenta el momento aerodinámico y por tanto tiene que aumentar el batimiento
+longitudinal $\beta_{1c}$ para compensarlo; el aumento de este batimiento debido
+al desfase cercano a 90º de paso y batimiento se advierte sobre todo en el cíclico 
+$\theta_{1s}$. $\theta_{1c}$ no varía demasiado y permanece pequeño gracias a
+que a pesar de que el incremento de tracción del rotor de cola produce un
+aumento de momento de balance, éste se encuentra aproximadamente equilibrado por
+el momento que se produce en el rotor de forma natural al aumentar la
+diferencia de velocidades entre la pala que avanza y la pala que retrocede 
+(figura \ref{fig:ciclicos avance}).
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th1c_th1s_V.eps}
+	\caption{Cíclicos para diferentes velocidades de avance}
+    \label{fig:ciclicos avance}
+\end{figure}
+
+Vemos cómo el ángulo de balance $\phi$ sirve para compensar la fuerza
+lateral de la cola, siendo su variación exactamente opuesta (figura \ref{fig:balance cola avance}).
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_cTT_fi_V.eps}
+	\caption{Tracción de cola y ángulo de balance frente a velocidad de
+	avance}
+    \label{fig:balance cola avance}
+\end{figure}
+
+Por último, se muestra el colectivo de cola frente a la velocidad de avance. Esta
+curva está determinada por dos factores: el comportamiento similar al colectivo
+del rotor principal frente a la velocidad de avance y la necesidad de variar su
+tracción como muestra la gráfica de $c_{T_T}$ para compensar el par del rotor
+principal (figura \ref{fig:cola avance}).
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0T_V.eps}
+	\caption{Colectivo de cola frente a velocidad de
+	avance}
+    \label{fig:cola avance}
+\end{figure}
+
+\subsection{Giro a nivel sin resbalamiento}
+Para que no haya resbalamiento debe compensar la aceleración centrífuga a la
+gravedad por lo que, como vemos en la figura \ref{fig:fi(Oma)}, es 
+aproximadamente:
+\begin{equation*}
+    \phi = \arctan\frac{\Omega_aV}{g}
+\end{equation*}
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_fi_Oma.eps}
+	\caption{Balance en función de velocidad de giro}
+    \label{fig:fi(Oma)}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th_Oma.eps}
+	\caption{Cabeceo en función de velocidad de giro}
+\end{figure}
+
+El colectivo tiene que compensar por la pérdida de tracción vertical
+al inclinar el helicóptero y el colectivo de cola a su vez compensa
+el par de rotor debido al aumento de colectivo.
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_Oma.eps}
+	\caption{Colectivo en función de velocidad de giro}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th0_Oma.eps}
+	\caption{Colectivo de cola en función de velocidad de giro}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=12cm]{Figuras/trim_th1c_th1s_Oma.eps}
+	\caption{Cíclicos en función de velocidad de giro}
+\end{figure}
+
+\section{Derivadas de estabilidad}
+A continuación se presenta de forma gráfica el cálculo de las derivadas de
+estabilidad a partir de cada situación de trimado. En concreto se ha perturbado
+en la velocidad, la velocidad angular y los controles un valor de $\pm 0.001$ y
+se ha calculado la perturbación correspondiente en cada una de las tres fuerzas y
+tres momentos que actúan sobre el helicóptero. Las fuerzas se encuentran
+divididas por la masa del helicóptero y los momentos por la inercia, teniendo
+en cuenta el efecto de los momentos de inercia cruzados. De formas más exacta,
+si la prima indica la magnitud antes de casi-adimensionalizar:
+
+\begin{align}
+	X =& \frac{X'}{M} \mbox{  } \left[\frac{m}{s^2}\right]\\
+	Y =& \frac{Y'}{M} \mbox{  } \left[\frac{m}{s^2}\right]\\
+	Z =& \frac{Z'}{M} \mbox{  } \left[\frac{m}{s^2}\right]\\
+	L =& \frac{I_{zz}}{I_{xx}I_{zz} - I_{xz}^2}L' +
+	\frac{I_{xz}}{I_{xx}I_{zz} - I_{xz}^2}N' \mbox{  } \left[\frac{1}{s^2}\right]\\
+	M =& \frac{M'}{I_{yy}} \mbox{  } \left[\frac{1}{s^2}\right]\\
+	N =& \frac{I_{xz}}{I_{xx}I_{zz} - I_{xz}^2}L' +
+	\frac{I_{xx}}{I_{xx}I_{zz} - I_{xz}^2}N' \mbox{  } \left[\frac{1}{s^2}\right]\\
+\end{align}
+
+Las derivadas se encuentran representadas frente a la velocidad, dada en nudos.
+De 0 a 2 nudos se han calculado cada 0.2 nudos, y de 2 nudos hasta 160 cada 2
+nudos.
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_q.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_q.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_q.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_r.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_r.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_r.eps}
+\end{figure}
+\clearpage
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_r.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_r.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_v.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_p.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_r.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_q.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_q.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_u.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_w.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_q.eps}
+\end{figure}
+\clearpage
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_th0.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_th1s.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_th1c.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_X_th0T.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Z_th0T.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_M_th0T.eps}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_Y_th0T.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_L_th0T.eps}
+	\includegraphics[width=6cm,height=12cm,angle=-90]{Figuras/Lynx_N_th0T.eps}
+\end{figure}
+
+\section{Cálculo de la respuesta}
+Se incluye un pequeño fichero de ejemplo \verb!ensayos.py! que permite 
+calcular la respuesta del helicóptero y muestra los resultados que se incluyen
+a continuación para entradas escalón a partir de vuelo trimado.
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_hor_et1sp.eps}
+    \caption{Entrada escalón para mando longitudinal a partir de vuelo trimado
+    horizontal a 30 m/s: piloto}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_hor_th1s.eps}
+    \caption{Entrada escalon para mando longitudinal a partir de vuelo trimado
+    horizontal a 30 m/s: paso longitudinal}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_hor_u.eps}
+    \caption{Entrada escalon para mando longitudinal a partir de vuelo trimado
+    horizontal a 30 m/s: velocidad horizontal}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_hor_w.eps}
+    \caption{Entrada escalon para mando longitudinal a partir de vuelo trimado
+    horizontal a 30 m/s: velocidad vertical}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_hor_q.eps}
+    \caption{Entrada escalon para mando longitudinal a partir de vuelo trimado
+    horizontal a 30 m/s: velocidad angular de cabeceo}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_fijo_et0p.eps}
+    \caption{Entrada escalon para colectivo a partir de vuelo a punto fijo: piloto}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.5]{Figuras/ensayo_fijo_w.eps}
+    \caption{Entrada escalon para colectivo a partir de vuelo a punto fijo: 
+    velocidad vertical}
+\end{figure}

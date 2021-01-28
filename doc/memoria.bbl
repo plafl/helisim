@@ -1,0 +1,97 @@
+\begin{thebibliography}{10}
+
+\bibitem{Test}
+Alastair~K. Cooke and Eric W.~H. Fitzpatrick.
+\newblock {\em Helicopter Test and Evaluation}.
+\newblock Blackwell Science, 2002.
+
+\bibitem{cuaternios}
+Joseph~M. Cooke, Michael~J. Zyda, David~R. Pratt, and Robert~B. McGhee.
+\newblock Npsnet: Flight simulation dynamic modeling using quaternions.
+\newblock {\em Presence}, 1(4):404--420, January 1994.
+
+\bibitem{NASATM84281}
+Peter D.Talbot, Bruce~E. Tinling, William~A. Decker, and Robert~T.N. Chen.
+\newblock A mathematical modelo of single main rotor helicopter for piloted
+  simulation.
+\newblock Technical Report NASA TM 84281, NASA, September 1982.
+
+\bibitem{numerico}
+Juan~A. Hern{\'a}ndez.
+\newblock {\em C{\'a}lculo Num{\'e}rico en Ecuaciones Diferenciales
+  Ordinarias}.
+\newblock Aula Documental de Investigaci{\'o}n, 2000.
+
+\bibitem{UH60:Simple}
+Kathryn~B. Hilbert.
+\newblock A mathematical model of the uh-60 helicopter.
+\newblock Technical Report NASA TM 85890, NASA, April 1984.
+
+\bibitem{UH60:GenHel}
+J.J. Howlett.
+\newblock Uh-60a black hawk engineering simulation program: Volume i -
+  mathematical model.
+\newblock Technical Report NASA CONTRACTOR REPORT 166309, NASA, December 1981.
+
+\bibitem{RM3021}
+I.C.Cheeseman and W.E. Bennett.
+\newblock The effect of the ground on a helicopter rotor in forward flight.
+\newblock Technical Report R\&M 3021, Ministry of Supply, 1957.
+
+\bibitem{Johnson:book}
+Wayne Johnson.
+\newblock {\em Helicopter Theory}.
+\newblock Princenton university press, 1980.
+
+\bibitem{NASATM104000}
+Benton~H. Lau, Alexander~W. Louise, Nicholas Griffiths, and Costatinos~P.
+  Sotiriou.
+\newblock Performance and rotor loads measurements of the lynx xz170 helicopter
+  with rectangular blades.
+\newblock Technical Report NASA-TM-104000, NASA, May 1993.
+
+\bibitem{GPS}
+Alfred Leick.
+\newblock {\em Gps Satellite Surveying}.
+\newblock John Wiley \& Sons, 1990.
+
+\bibitem{WGS84}
+NIMA.
+\newblock Department of defense world geodetic system 1984, its definition and
+  relationships with local geodetic systems.
+\newblock Technical Report NIMA TR8350.2, National Imaginery and Mapping
+  Agency, July 1997.
+
+\bibitem{Padfield:book}
+Gareth~D. Padfield.
+\newblock {\em Helicopter Flight Dynamics}.
+\newblock Blackwell Science Ltd, 1996.
+
+\bibitem{fgfs}
+Alexander~R. Perry.
+\newblock The flightgear flight simulator.
+\newblock Presentado en UseLinux 2004.
+
+\bibitem{PittPeters2}
+David~A. Peters and Ninh HaQuang.
+\newblock Dynamic inflow for practical applications.
+\newblock {\em Journal of the American Helicopter Society}, pages 64--68,
+  October 1988.
+
+\bibitem{PittPeters1}
+Dale~M. Pitt and David~A. Peters.
+\newblock Theoretical prediction of dynamic-inflow derivatives.
+\newblock {\em Vertica}, 5:21--34, 1981.
+
+\bibitem{recipes}
+William~H. Press, Saul~A. Teukolsky, William~T. Vetterling, and Brian~P.
+  Flannery.
+\newblock {\em Numerical Recipes in C}.
+\newblock Cambridge University Press, second edition, 2002.
+
+\bibitem{LopezRuiz}
+J.L.~L{\'o}pez Ruiz.
+\newblock {\em Helic{\'o}pteros: Teor{\'i}a y Dise{\~n}o Conceptual}.
+\newblock Editorial E.T.S.I Aeron{\'a}uticos, 1993.
+
+\end{thebibliography}

@@ -1,0 +1,264 @@
+\chapter[Integración]{Integración de las ecuaciones}
+
+Una vez que tenemos la ecuación diferencial que nos describe la  evolución del
+tiempo procedemos a integrarla. Para ello aproximamos la solución en un conjunto
+discreto de instantes de tiempo, lo cual nos lleva a la primera decisión: la
+elección de dichos instantes. Sabemos que debido a las necesidades de
+interactividad con el usuario por lo menos necesitamos calcular la solución unas
+35 veces por segundo. Dichos instantes de tiempo no se encuentran determinados
+de antemano, no los podemos elegir, ya que es un programa exterior FlightGear
+quien nos pide la solución en unos determinados instantes de tiempo. Además
+debido a numerosos factores externos, como por ejemplo la complejidad del
+escenario que se esté renderizando en ese momento, o incluso debido a la
+influencia de otros programas que estén consumiendo recursos los instantes de
+tiempo no se encuentran equiespaciados. En conclusión, desde el punto de
+vista de nuestro programa un integrador debe presentar la siguiente interfaz:
+
+\begin{itemize}
+    \item Una rutina para colocar el integrador en las condiciones iniciales.
+    \item Una rutina que avance el integrador al instante de tiempo actual. Sea
+    cual sea el intervalo transcurrido. Es criterio del integrador si el avance
+    se realiza en un sólo paso o en varios pasos.
+\end{itemize}
+
+Desde un punto de vista meramente informático no se requiere más y el usuario es
+libre de seleccionar en el fichero de entrada del modelo cualquier integrador
+que cumpla las anteriores condiciones, bien usando alguno de los que ya se
+encuentran disponibles en el fichero \verb!integrador.py! o añadiendo su propio
+integrador utilizando como plantilla algunos de los anteriores. 
+
+\section[Elección de integrador]{Elección del integrador}
+
+Desde un punto de vista de numérico el integrador debe cumplir las siguientes
+condiciones:
+
+\begin{itemize}
+    \item Debe conservar el carácter de estabilidad de la ecuación diferencial.
+    \item Debe aproximar a la solución con un error tolerable.
+    \item Debe ser posible evaluarlo en un tiempo adecuado.
+\end{itemize}
+
+
+Desgraciadamente las anteriores condiciones suelen ser excluyentes por lo que
+hay que alcanzar un compromiso. En general no se puede decir nada acerca de la
+estabilidad de una solución general de las ecuaciones diferenciales pero nos
+podemos hacer una idea a partir del análisis de las ecuaciones linealizadas.
+Se ha escrito un pequeño programa que calcula las derivadas de estabilidad en
+diversas condiciones de vuelo y calcula los autovalores de los modos propios del
+movimiento linealizado. A continuación se muestra la aplicación para el Lynx. El
+círculo corresponde a vuelo a punto fijo y el triángulo a vuelo de avance a 
+160 nudos (figura \ref{fig:modos})
+
+\begin{figure}
+    \includegraphics[scale=0.35]{Figuras/Lynx_modos.eps}
+    \caption{Modos propios del Lynx}
+    \includegraphics[scale=0.30]{Figuras/Lynx_modos_detalle.eps}
+    \caption{Detalle cerca del origen}
+    \label{fig:modos}
+\end{figure}
+
+Como se ve los modos más exigentes son el de convergencia en balance y sobre
+todo el asociado al giro del motor, que presenta una componente imaginaria muy
+alta. Teniendo en cuenta esto y que el paso de tiempo es del orden de 0.03
+podemos descartar aquellos esquemas cuyas zonas de estabilidad no cubran los
+anteriores modos escalados por el paso de tiempo.
+
+A continuación se discuten en qué medida son
+satisfactorios los integradores que se encuentran ya implementados. 
+
+Para analizar la estabilidad del integrador se ha calculado la región de
+estabilidad de cada integrador resolviendo numéricamente el polinomio 
+(ver \cite{numerico}):
+
+\begin{equation*}
+    \sum_{j=0}^p \left(\alpha_j - \omega f_j(\omega)\right)r^{p-j} = 0
+\end{equation*}
+
+para diversos valores del número complejo $\omega$. Se ha extraído en cada punto
+el valor de la raíz de mayor valor absoluto $r_{max}$ y se han dibujado las líneas de
+nivel de contorno para $r_{max}\leq1$. Los valores de los anteriores coeficientes
+vienen especificados en la discusión de cada integrador.
+
+Para estimar la precisión de la solución se ha calculado la respuesta del 
+helicóptero en un caso cualquiera con diferentes pasos de tiempo. Para ello se ha 
+realizado un vuelo, se ha guardado en fichero las magnitudes en los diferentes instantes
+de tiempo, incluidos los controles, se ha ``serializado'' el fichero de logging mediante
+la utilidad \verb!serializa! y mediante un pequeño programa \verb!test_integrador! se ha
+calculado la respuesta del helicóptero en función del tiempo para pasos de 0.03 y 0.015 
+segundos. Se ha calculado el máximo error global que se presenta en el intervalo de tiempo
+calculado y se han trazado las gráficas comparando ambas respuestas. La línea continua 
+corresponde al paso menor y por tanto en teoría más preciso de 0.015 segundos mientras
+que los puntos, dibujados sólo cada 0.3 segundos, corresponden al paso de 0.03 segundos. 
+Como las gráficas a simple vista son indistinguibles unas de otras se muestra sólo una, la
+calculada para el Predictor-Corrector (figura \ref{fig:serie converge}) y otra, que no converge, 
+para el Adams-Bashforth 3 (figura \ref{fig:serie no converge}).
+En esta última se ve cómo se necesita un paso pequeño para que la zona de estabilidad abarque 
+todos los autovalores de la ecuación diferencial. 
+
+\begin{figure}
+    \includegraphics[scale=0.45,angle=90]{Figuras/integradores_series.eps}
+    \caption{Cálculo de la posición y actitud del helicóptero en función del tiempo para
+    dos pasos diferentes de integración}
+    \label{fig:serie converge}
+\end{figure}
+
+
+\subsection{Euler}
+Es el primer integrador que se implementó debido a su sencillez. Su uso no se
+recomienda ya que presenta pésimas características de estabilidad y un error
+bastante pobre. A su favor hay que decir que por ser el más simple también es el
+que menos tiempo requiere. En ocasiones ha llegado a fallar su estabilidad sobre
+todo debido al grado de libertad asociado al giro del motor. Se mantiene en el
+fichero de integradores para poder usarlo como plantilla para implementar otros
+integradores.
+
+\begin{equation*}
+    u^{n+1} = u^n + \triangle tF^n
+\end{equation*}
+
+Polinomio de estabilidad:
+\begin{align*}
+    \alpha_0 &= 1 & f_0 &= 0 \\
+    \alpha_1 &= -1 & f_1 &= 1 
+\end{align*}
+
+\begin{figure}
+    \includegraphics[scale=0.6]{Figuras/estabilidad_Euler.eps}
+    \caption{Región de estabilidad del Euler}
+\end{figure}
+
+El máximo error global para el pequeño vuelo de test ha correspondido a $y_i$, 
+y ha sido de 0.031 metros.
+    
+
+\subsection{Runge-Kutta de orden 4}
+Fue el segundo integrador que se implementó debido a sus excelentes propiedades
+de estabilidad. Es el integrador a utilizar si se presenta algún problema de
+divergencia explosiva en las ecuaciones ya que puede ayudar a identificar si se
+trata de un error en el modelo o en el integrador. Desgraciadamente exige la
+evaluación de la función en cuatro puntos intermedios por lo que es el peor
+integrador a usar para ahorrar coste computacional. No se recomienda su uso si
+se va a utilizar el simulador interactivamente ya que debido a que se encuentra
+implementado en python, un lenguaje interpretado bastante lento (30 veces más
+lento que C), se producirían desfases intolerables entre las acciones del piloto
+y la respuesta del helicóptero. Esto es un fallo de implementación del
+simulador, en futuras mejoras habría que reimplementar las partes que más tiempo
+consumen en C/C++ u otro lenguaje de bajo nivel.
+
+\begin{align*}
+    u^{n+1} &= u^n + \frac{\triangle t}{6}(k_1 + 2k_2 + 2k_3 + k_4) \\
+    k_1 &= F(u^n, t_n) \\
+    k_1 &= F(u^n + \triangle t k_1/2, t_n + \triangle t/2) \\
+    k_1 &= F(u^n + \triangle t k_2/2, t_n + \triangle t/2) \\
+    k_1 &= F(u^n + \triangle tk_3, t_n + \triangle t) \\
+\end{align*}
+
+Polinomio de estabilidad:
+\begin{align*}
+    \alpha_0 &= 1 & f_0 &= 0 \\
+    \alpha_1 &= -1 & f_1 &= \frac{1}{24}(w^3 + 4w^2 + 12w + 24) \\
+\end{align*}
+
+\begin{figure}
+    \includegraphics[scale=0.6]{Figuras/estabilidad_RK4.eps}
+    \caption{Región de estabilidad del Runge-Kutta 4}
+\end{figure}
+
+El máximo error global para el pequeño vuelo de test ha correspondido a $y_i$, 
+y ha sido de 0.049 metros.
+
+\subsection{Adams-Bashforth 2}
+Mejora las características del Euler y además no exige evaluaciones
+adicionales de la función. Es uno de los dos integradores recomendados para todo
+uso.
+
+\begin{align*}
+    u^{n+1} &= u^n + \triangle t(\beta_1 F^n + \beta_2F^{n-1}) \\
+    \beta_1 &= \frac{2\triangle t_2 + \triangle t_1}{2\triangle t_2} \\
+    \beta_2 &= -\frac{\triangle t_1}{2\triangle t_2}
+\end{align*}
+
+Polinomio de estabilidad (para paso constante):
+\begin{align*}
+    \alpha_0 &= 1 & f_0 &= 0 \\
+    \alpha_1 &= -1 & f_1 &= \frac{3}{2} \\
+    & & f_2 &= -\frac{1}{2}
+\end{align*}
+
+\begin{figure}
+    \includegraphics[scale=0.6]{Figuras/estabilidad_AB2.eps}
+    \caption{Región de estabilidad del Adams-Bashforth 2}
+\end{figure}
+
+El máximo error global para el pequeño vuelo de test ha correspondido a $x_i$, 
+y ha sido de 0.001 metros.
+
+\subsection{Adams-Bashforth 3}
+Se ha implementado este integrador para ver si se podía mejorar la precisión del
+Adams-Bashfort 2. Desgraciadamente no es un integrador adecuado, ya que requiere
+pasos de tiempo la mitad de pequeños que el Adams-Bashofrth 2, por lo que puede
+llegar a diverger.
+
+\begin{align*}
+    u^{n+1} &= u^n + \triangle t(\beta_1 F^n + \beta_2F^{n-1} + \beta_3F^{n-2}) \\
+    \beta_1 &= 1 + \frac{\triangle t_1\left(2\triangle t_1 + 6\triangle t_2 +
+    3\triangle t_3\right)}{6\triangle t_2\left(\triangle t_2 + \triangle
+    t_3\right)} \\
+    \beta_2 &= -\frac{\triangle t_1\left(2\triangle t_1 + 3\triangle t_2 +
+    3\triangle t_3\right)}{6\triangle t_2 \triangle t_3} \\
+    \beta_3 &= \frac{\triangle t_1\left(2\triangle t_1 + 3\triangle t_2
+    \right)}{6\triangle t_3\left(\triangle t_2 + \triangle t_3\right)}
+\end{align*}
+
+Polinomio de estabilidad (para paso constante):
+\begin{align*}
+    \alpha_0 &= 1 & f_0 &= 0 \\
+    \alpha_1 &= -1 & f_1 &= \frac{23}{12} \\
+    & & f_2 &= -\frac{4}{3} \\
+    & & f_3 &= \frac{5}{12}
+\end{align*}
+
+\begin{figure}
+    \includegraphics[scale=0.6]{Figuras/estabilidad_AB3.eps}
+    \caption{Región de estabilidad del Adams-Bashforth 3}
+\end{figure}
+
+Para paso de 0.03 segundos el método se ha vuelto inestable.
+\begin{figure}
+    \includegraphics[scale=0.45,angle=90]{Figuras/integradores_series_mal.eps}
+    \caption{Inestabilidad del Adams-Bashforth 3}
+    \label{fig:serie no converge}
+\end{figure}
+
+\subsection{Predictor-Corrector Adams-Bashforth-Moulton 2}
+Finalmente el mejor integrador para esta aplicación presenta una zona de
+estabilidad suficientemente grande y sólo requiere dos evaluaciones de la
+función en cada instante de tiempo por lo que es suficientemente rápido para
+ejecutarlo en modo interactivo. Como valor añadido permite estimar el error
+numérico.
+
+
+\begin{align*}
+    u_*^{n+1} &= u^n + \triangle t(\beta_{p1} F^n + \beta_{p2}F^{n-1}) \\
+    F_*^{n+1} &= F(u_*^{n+1}, t_{n+1}) \\
+    u^{n+1} &= u^n + \triangle t(\beta_{c0}F_*^{n+1} + \beta_{c1}F^n) \\
+    \beta_{p_1} &= \frac{2\triangle t_2 + \triangle t_1}{2\triangle t_2}  &
+    \beta_{c_0} &= \frac{1}{2}\\
+    \beta_{p_2} &= -\frac{\triangle t_1}{2\triangle t_2} & 
+    \beta_{c_1} &= \frac{1}{2}\\
+\end{align*}
+
+Polinomio de estabilidad (para paso constante):
+\begin{align*}
+    \alpha_0 &= 1 & f_0 &= 0 \\
+    \alpha_1 &= -1 & f_1 &= 1 + \frac{3}{4}\omega \\
+    & & f_2 &= -\frac{1}{4}\omega
+\end{align*}
+
+\begin{figure}
+    \includegraphics[scale=0.6]{Figuras/estabilidad_ABM2.eps}
+    \caption{Región de estabilidad del Adams-Bashforth-Moulton 2}
+\end{figure}
+
+El máximo error global para el pequeño vuelo de test ha correspondido a $y_i$, 
+y ha sido de 0.061 metros.

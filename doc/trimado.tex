@@ -1,0 +1,690 @@
+\chapter{Trimado}
+Para calcular la posición de equilibrio del helicóptero es necesario resolver
+por lo menos un conjunto de 15 ecuaciones:
+\begin{itemize}
+  \item 6 Ecuaciones de fuerzas y momentos del fuselaje.
+  \item 3 Ecuaciones de orientación del helicóptero.
+  \item 1 ecuación para la velocidad de rotación del rotor.
+  \item 1 ecuación para el cálculo de par de motor a partir de la velocidad
+	  del rotor.
+  \item 4 ecuaciones adicionales, tantas como controles tiene el helicóptero
+	  para igualar el número de incógnitas con el de ecuaciones.
+\end{itemize}
+
+Muchas de las anteriores ecuaciones son no lineales:
+\begin{itemize}
+	\item  Las fuerzas de inercia dependen cuadráticamente de la velocidad y
+		la velocidad angular.
+	\item  La fuerza de la gravedad depende mediante funciones
+		trigonométricas del cabeceo y del balance.
+	\item  También dependen de la misma forma las fuerzas aerodinámicas que
+		además se pueden encontrar dadas en forma de tablas para
+		interpolar.
+	\item  Las fuerzas del rotor dependen linealmente y cuadráticamente del
+		batimiento y trigonométricamente de la orientación.
+	\item La velocidad inducida en el rotor depende de forma no lineal del
+		coeficiente de sustentación.
+	\item El resto de ecuaciones son lineales: los controles en función de
+		los pasos y las ecuaciones del batimiento y la velocidad
+		inducida no uniforme.
+\end{itemize}
+
+Además, debido a las características del helicóptero, se trata de un sistema
+totalmente acoplado y que por ejemplo, el control longitudinal del paso del
+rotor influye sobre el batimiento lateral, lo que provoca momentos y fuerzas
+laterales, etc\ldots
+
+A falta de un mejor análisis matemático del problema la estrategia que se ha seguido para resolver el
+trimado ha sido siguiendo un razonamiento físico, similar al que seguiría un
+piloto a los mandos del helicóptero: primero y a pesar de todo, dividir el problema en
+una parte longitudinal y otra lateral. Se resuelven secuencialmente las
+ecuaciones longitudinales y se iteran hasta que converge un determinado
+parámetro, por ejemplo el cabeceo del helicóptero. Se hace de la misma forma
+para las ecuaciones laterales utilizando como parámetro el ángulo de balance.
+Finalmente se itera en la velocidad angular y se resuelven las ecuaciones
+
+\section{Condiciones adicionales}
+
+Especificamos las condiciones de trimado dadas, por ejemplo, por
+los siguientes 4 parámetros, aunque podrían haber sido otros:
+\begin{itemize}
+  \item Velocidad de giro $\Omega_a$.
+  \item Velocidad $V$.
+  \item Ángulo de subida $\gamma_f$.
+  \item Ángulo de resbalamiento $\beta$.
+\end{itemize}
+
+\section[Velocidad y vel. angular]{Cálculo de la velocidad y velocidad angular}
+
+Conocidos estos cuatro parámetros, suponemos conocidos, ya sea de una estimación
+inicial o de un cálculo anterior el valor de cabeceo $\theta$ y el de balance
+$\phi$, entonces podemos calcular la velocidad  $u,v,w$ y la velocidad angular
+$p, q, r$ en ejes cuerpo. La velocidad angular se calcula rápidamente utilizando
+las relaciones usuales para ángulos de Euler:
+
+\begin{align*}
+	p &= -\Omega_a\sin\theta \\
+	q &= \Omega_a\cos\theta\sin\phi \\
+	r &= \Omega_a\cos\theta\cos\phi
+\end{align*}
+
+El cálculo de la velocidad es un poco más elaborado. Para ello expresamos la
+velocidad en ejes cuerpo y en unos ejes inerciales:
+\begin{align*}
+	\vec{V} &= V\left[\frac{u}{V}\vec{i}_b + \sin\beta\vec{j}_b +
+	\frac{w}{V}\vec{k}_b\right] \\
+	&= V\left[\cos\gamma\cos\chi\vec{i}_0 + \cos\gamma\sin\chi\vec{j}_0 +
+	\sin\gamma\vec{k}_0\right] \\
+\end{align*}
+
+Donde el ángulo $\chi$ es el ángulo que forma la proyección de la velocidad
+sobre el $x_0y_0$ con el eje $x_0$, y constituye una incógnita junto con $u$ y
+$v$.
+
+Utilizando la matriz de cambio de base de ejes inerciales a ejes cuerpo que se
+obtuvo en el capítulo dedicado a sistemas de referencia obtenemos 3 ecuaciones.
+Resolviendo una de ellas:
+
+\begin{equation*}
+    \sin\beta - \sin\gamma\sin\phi\cos\theta =
+    \cos\gamma\sin\theta\sin\phi\cos(\chi - \psi) + \cos\gamma\cos\phi\sin(\chi
+    - \phi) 
+\end{equation*}
+
+De donde despejamos el ángulo $\chi - \psi$. Una vez conocido este ángulo
+obtenemos de las otras dos ecuaciones:
+\begin{align*}
+	\frac{u}{V} &= \cos\theta\cos\gamma\cos(\chi - \psi) -
+	\sin\theta\sin\gamma \\
+	\frac{w}{V} &= \cos\gamma\sin\theta\cos\phi\cos(\chi-\psi) +
+	\cos\gamma\sin\phi\sin(\chi-\psi) +\\
+	&\sin\gamma\cos\phi\cos\theta 
+\end{align*}
+
+La anterior ecuación para $\chi - \psi$ tiene dos soluciones que se 
+corresponden a distintos ángulos de ataque para el helicóptero. Para entender
+esta multiplicidad de soluciones podemos visualizar la condición en $\gamma$
+como un requisito para que la velocidad se encuentre en el cono de semiángulo
+$\frac{\pi}{2} - \gamma$ que tiene como eje el eje $z_0$, y la condición en
+$\beta$ como otro requisito para que la velocidad se encuentre en un cono de
+semiángulo $\frac{\pi}{2} - \beta$ con eje el $y_B$. La velocidad será entonces
+la intersección de los dos anteriores conos que comparten su vértice, por lo que
+habrá dos soluciones en general aunque puede que no haya ninguna o incluso una,
+si ambos conos son tangentes.
+
+\begin{figure}
+	\input{Figuras/conoGamma.pstex_t}
+	\caption{Posibles soluciones de $\vec{V}$}
+\end{figure}
+
+De las dos soluciones nos quedamos con la que físicamente tiene mas sentido, que es
+la que de el menor valor de ángulo de ataque. En el caso de no haber solución
+habría que reintroducir alguno de los cuatro parámetros.
+
+\section[Fzas. aerodinámicas y de inercia]
+{Cálculo de fuerzas aerodinámicas y de inercia}
+Conocida  la velocidad en ejes cuerpo y supuestos cálculos anteriores para la
+velocidad inducida y ángulo de estela podemos determinar las fuerzas
+aerodinámicas de fuselaje y estabilizadores, y también determinamos las fuerzas
+de inercia. Calculamos también los ejes viento del rotor y cola, parámetros de
+avance y velocidades angulares adimensionalizadas con la velocidad de giro del
+rotor (suponemos conocida también).
+
+\section{Ecuaciones longitudinales}
+Suponemos conocidas las fuerzas y momentos del rotor de cola. A continuación
+vamos a hacer cumplir las ecuaciones longitudinales del movimiento, para ello
+vamos a suponer que nuestros parámetros de control son la tracción del rotor
+$c_T$ para hacer cumplir la ecuación de fuerzas vertical, el batimiento 
+longitudinal $\beta_{1c}$ para hacer cumplir la ecuación de momentos de cabeceo y el
+ángulo de cabeceo $\theta$ que inclina la tracción del rotor para vencer la
+resistencia aerodinámica sobre todo del fuselaje. Más detalladamente:
+
+\begin{enumerate}
+	\item Despejamos la fuerza vertical del rotor en ejes cuerpo $Z_R$,
+		normalmente un valor cercano al peso del helicóptero que se
+		puede utilizar como primera aproximación.
+        \begin{equation*}
+		    Z_R = M(-qu + pv) - (Z_f + Z_{fn} + Z_{tp} + Z_{T}) -
+		    Mg\cos\theta 
+        \end{equation*}
+	
+	\item Despejamos el momento del rotor en ejes cuerpo de la ecuación de
+		momentos de cabeceo:
+        \begin{equation*}
+		    M_R = -(I_{zz} - I_{xx})rp - I_{xz}(r^2 - p^2) - (M_f + M_{fn}
+		    + M_{tp} + M_T) 
+        \end{equation*}
+	
+	\item Suponiendo conocida la fuerza horizontal del rotor calculamos las
+		fuerzas y momentos aplicados sobre la cabeza del
+		rotor:
+		\begin{align*}
+			X_{Rh} &= X_R \\
+			Z_{Rh} &= Z_R \\
+            M_{Rh} &= M_R - Z_R x_{cg} + X_R h_R \\
+		\end{align*}
+	
+	\item Obtenemos el coeficiente de sustentación del rotor a partir
+        de las fuerzas y momentos en ejes viento:
+        \begin{equation*}
+		    c_T = -\frac{Z_{Rh_w}}{\rho(\Omega R)^2\pi R^2}
+        \end{equation*}
+	\item Obtenemos el batimiento del rotor
+        \begin{equation*}
+            \beta_{1cw} = \frac{-2M_{Rh_w}}{N_bK_\beta} 
+        \end{equation*}
+	
+	\item Conocido $c_T$ y por tanto el coeficiente $\delta = \delta_0 +
+		\delta_2 c_T^2$ y el batimiento $\beta_{1cw}$ ya podemos obtener
+		una estimación buena de la resistencia del rotor, calculamos
+		$\left.X_{Rh}\right|_w$ donde suponemos conocidos los numerosos
+		datos que faltan, que de todas formas influyen mucho menos:
+		$\lambda_{1cw}$, $\lambda_{1sw}$, etc\ldots Pasamos a ejes
+		cuerpo y tenemos $X_R$
+
+	\item Despejamos de las ecuaciones horizontal y vertical la fuerza de 
+		gravedad:
+        \begin{equation*}
+            \theta = \arctan\left(-\cos\phi\frac{M(-rv + qw) - (X_f +
+		    X_{fn} + X_{tp} + X_T + X_R)}{M(-qu+pv) - (Z_f + Z_{fn} + Z_{tp}
+		    + Z_T + Z_R)}\right) 
+        \end{equation*}
+
+	\item Comprobamos el error en $\theta$, es decir, su diferencia respecto
+		al valor anteriormente calculado. Si no cae dentro del error
+		admisible repetimos el proceso, si es aceptable pasamos al
+		cumplimiento de las ecuaciones laterales
+\end{enumerate}
+
+\section{Ecuaciones laterales}
+A continuación hacemos cumplir las ecuaciones laterales, nuestras variables de
+control van a ser la tracción de la cola $c_{T_T}$ para hacer cumplir la
+ecuación de momentos de guiñada, el batimiento $\beta_{1s}$ para cumplir el
+momento de balance y el ángulo de balance $\phi$ para contrarrestar mediante el
+rotor la fuerza lateral del rotor de cola.
+
+\begin{enumerate}
+	\item Una vez conocido $c_T$ del anterior bucle calculamos la velocidad
+		inducida media $\lambda_0$ que nos permite junto a a $c_T$ 
+		calcular el par del rotor, para ello resolvemos la ecuación no
+		lineal:
+        \begin{equation*}
+		    \frac{\lambda_0}{k_i} = \frac{c_T}{2\sqrt{\left(\frac{\mu}{k_\nu}
+		    \right)^2 + \left(\frac{1}{k_\nu}^2 - \frac{1}{k_i}^2\right)\mu_z^2
+		    + \left(\frac{\mu_z -\lambda_0}{k_i}\right)^2}} 
+        \end{equation*}
+
+		Donde ahora es $c_T$ una constante que no depende de $\lambda_0$.
+	
+	\item Calculamos el par del rotor en la cabeza del rotor en ejes viento
+		y los pasamos al centro de masas en ejes cuerpo.
+
+	\item De la ecuación del momento de guiñada despejamos el par que 
+		realiza el rotor de cola.
+        \begin{equation*}
+            N_T = -(I_{xx} - I_{yy})pq + I_{xz}qr - (N_f + N_{fn} + N_{tp}
+		        + N_R)
+        \end{equation*}
+		Despejamos del par del rotor de cola la sustentación del rotor
+		de cola:
+        \begin{equation*}
+		    Y_T = T_T = -\frac{N_T}{l_T + x_{cg}}
+        \end{equation*}
+	
+	\item Con la tracción del rotor de cola podemos estimar bien el momento
+		de balance provocado por el rotor de cola:
+        \begin{equation*}
+            L_T = Y_Th_T
+        \end{equation*}
+		Y despejar de la ecuación del momento de balance el momento que
+		debe de realizar el rotor:
+        \begin{equation*}
+            L_R = (I_{xx} - I_{yy})qr - I_{xz}pq - (L_f + L_{fn} + L_{tp}
+		    + L_T)
+        \end{equation*}
+		Calculamos el momento de balance en la cabeza del rotor:
+        \begin{equation*}
+            L_{Rh} = L_R - Y_Rh_R
+        \end{equation*}
+		Y despejamos el batimiento lateral en ejes viento:
+        \begin{equation*}
+            \beta_{1sw} = -\frac{L_{Rh_w}}{N_bK_\beta} 
+        \end{equation*}
+	
+	\item Conocido el batimiento lateral y la tracción del rotor se puede
+		estimar muy bien la fuerza lateral del rotor; una vez calculada
+		despejamos $\phi$ de la ecuación de fuerzas lateral.
+        \begin{equation*}
+            \phi = \arcsin\frac{1}{Mg\cos\theta}\left[M(uv - wp) - (Y_f +
+	    	Y_{fn} + Y_{tp} + Y_T\right]
+        \end{equation*}
+	
+	\item Comprobamos el error en $\phi$; si cae dentro de un margen
+		aceptable continuamos con el cálculo de la velocidad angular del
+		rotor, si no, comenzamos de nuevo desde el principio calculando
+		$\theta$
+\end{enumerate}
+
+\section{Velocidad angular del rotor}
+Lo primero que necesitamos es calcular el par del rotor de cola. Para ello
+necesitamos su velocidad inducida. Una vez calculado el par es muy sencillo
+resolver las ecuaciones del motor.
+\begin{enumerate}
+	\item Calculamos el coeficiente de sustentación de la cola:
+        \begin{equation*}
+		    c_{T_T} = \frac{T_T}{\rho(\Omega_T R_T)^2\pi R_T^2 F_T} 
+        \end{equation*}
+		Donde recordamos que $F_T$ es el factor de bloqueo empírico
+		debido a la superficie del estabilizador vertical. 
+	
+	\item Calculamos el coeficiente de resistencia $\delta_T = \delta_{T_0}
+		+ \delta_{T_2}c_{T_T}^2$ y la velocidad inducida $\lambda_{0_T}$
+		a partir de la ecuación no lineal:
+        \begin{equation*}
+            \frac{\lambda_{0_T}}{k_i} =
+    		\frac{c_{T_T}}{2\sqrt{\left(\frac{\mu_T}{k_\nu}
+    		\right)^2 + \left(\frac{1}{k_\nu}^2 -
+    		\frac{1}{k_i}^2\right)\mu_{z_T}^2
+    		+ \left(\frac{\mu_{z_T} -\lambda_{0_T}}{k_i}\right)^2}} 
+        \end{equation*}
+
+	\item Calculamos el par del rotor de cola $Q_T$ y de ahí junto con el
+		par del rotor despejamos el par de un motor:
+        \begin{equation*}
+		    Q_1 = \frac{1 + P}{n}(Q_R + g_TQ_T)
+        \end{equation*}
+	
+	\item Calculamos la velocidad angular:
+        \begin{equation*}
+		    \Omega = \Omega_i - \frac{Q_1}{K_3} 
+        \end{equation*}
+	
+	
+	\item Calculamos los controles $\theta_0$, $\theta_{1cw}$, 
+		$\theta_{1sw}$, el batimiento $\beta_0$ y las velocidades
+		inducidas $\lambda_{1cw}$ y $\lambda_{1sw}$. Para ello
+		reorganizamos las ecuaciones de batimiento y de velocidad
+		inducida pasando los controles al lado izquierdo y los
+		batimientos $\beta_{1cw}$ y $\beta_{1sw}$ al lado derecho y
+		añadiendo la ecuación que nos aporta conocer $c_T$. Entonces nos
+		queda un sistema lineal de 5 ecuaciones:
+        \begin{multline*}
+			\left[\begin{array}{cccccc}
+				A_{\beta\beta}^{11} & 
+				A_{\beta\lambda}^{11} &
+				A_{\beta\lambda}^{12} &
+				-A_{\beta\theta}^{11} &
+				-A_{\beta\theta}^{13} &
+				-A_{\beta\theta}^{14} \\
+                %				
+				A_{\beta\beta}^{21} & 
+				A_{\beta\lambda}^{21} &
+				A_{\beta\lambda}^{22} &
+				-A_{\beta\theta}^{21} &
+				-A_{\beta\theta}^{23} &
+				-A_{\beta\theta}^{24} \\
+				%
+				A_{\beta\beta}^{31} & 
+				A_{\beta\lambda}^{31} &
+				A_{\beta\lambda}^{32} &
+				-A_{\beta\theta}^{31} &
+				-A_{\beta\theta}^{33} &
+				-A_{\beta\theta}^{34} \\	
+				%
+				A_{\lambda\beta}^{11} & 
+				A_{\lambda\lambda}^{11} &
+				A_{\lambda\lambda}^{12} &
+				-A_{\lambda\theta}^{11} &
+				-A_{\lambda\theta}^{13} &
+				-A_{\lambda\theta}^{14} \\
+		        %		
+				A_{\lambda\beta}^{21} & 
+				A_{\lambda\lambda}^{21} &
+				A_{\lambda\lambda}^{22} &
+				-A_{\lambda\theta}^{21} &
+				-A_{\lambda\theta}^{23} &
+				-A_{\lambda\theta}^{24} \\
+                %
+				0 & 
+				0 &
+				0 &
+				\frac{1}{3} + \frac{\mu^2}{2} &
+				\frac{\mu}{2} &
+				0 \\
+                %
+			\end{array}\right]\left\{\begin{array}{c}
+				\beta_0 \\
+				\lambda_{1sw} \\
+				\lambda_{1cw} \\
+				\theta_0 \\
+				\theta_{1sw} \\
+				\theta_{1cw} 
+			\end{array}\right\}
+				=  
+		    \\
+			-\left[\begin{array}{cc}
+				A_{\beta\beta}^{12} & 
+				A_{\beta\beta}^{13} \\
+				A_{\beta\beta}^{22} & 
+				A_{\beta\beta}^{23} \\
+				A_{\beta\beta}^{32} & 
+				A_{\beta\beta}^{33} \\ 
+				A_{\lambda\beta}^{12} & 
+				A_{\lambda\beta}^{13} \\
+				A_{\lambda\beta}^{22} & 
+				A_{\lambda\beta}^{23} \\
+				0 & 
+				0 \\
+			\end{array}\right]\left\{\begin{array}{c}
+				\beta_{1cw} \\
+				\beta_{1sw} \\
+			\end{array}\right\}  +
+			\left[\begin{array}{c}
+				A_{\beta\omega} \\
+				A_{\lambda\omega} \\
+				-\frac{\mu}{4}  \\
+			\end{array}\right]\left\{\begin{array}{c}
+				\bar{p}_w \\
+				\bar{q}_w 
+			\end{array}\right\} +
+            \\
+			\left\{\begin{array}{c}
+				\vec{A}_{\beta\lambda_0} \\
+				\vec{A}_{\lambda\lambda_0} \\
+				-\frac{1}{2}
+			\end{array}\right\}(\mu_z - \lambda_0) + 
+			\left\{\begin{array}{c}
+				0 \\
+				0 \\
+				0 \\
+				0 \\
+				0 \\
+				\frac{2c_T}{a_0s} - \frac{1}{4}(1 +
+				\mu^2)\theta_t \\
+			\end{array}\right\}
+        \end{multline*}
+		
+        Despejamos las incógnitas del anterior sistema y pasamos de ejes
+		viento a ejes rotor el paso y el batimiento.
+
+	\item Calculamos el control de cola $\theta_{0_T}$ y los batimientos
+		$\beta_{0_T}$, $\beta_{{1cw}_T}$ y $\beta_{{1sw}_T}$. Como hicimos
+		para el rotor principal hay que reordenar las ecuaciones y
+		añadir el hecho de que conocemos $c_{T_T}$. Queda entonces el
+		siguiente sistema lineal:
+        \begin{multline*} 
+		    \left[\begin{array}{cccc}
+    			& A_{\beta\beta_T} & & -A_{\beta\theta_{0_T}} \\
+    			k_3\left(\frac{1}{3} + \mu_T^2\right) &
+    			0 &
+    			k_3\frac{\mu_T}{2} &
+    			\frac{1}{3} + \mu_T^2 \\		
+    		\end{array}\right]
+    		\left\{\begin{array}{c}
+    			\beta_{0_T} \\
+    			\beta_{1cw_T} \\
+    			\beta_{1sw_T} \\
+    			\theta_{0_T} 
+    		\end{array}\right\} = 
+    		\\ 
+    		\left\{\begin{array}{c}
+    		\vec{A}_{\beta\lambda_{0_T}} \\
+    		-\frac{1}{2} \\
+    		\end{array}\right\}(\mu_{z_T} - \lambda_{0_T}) + 
+    		\left\{\begin{array}{c}
+    			\vec{A}_{\beta\theta_{t_T}}\theta_{t_T} \\
+    			\frac{2c_{T_T}}{a_{0_T}s_T} \\
+    		\end{array}\right\}
+        \end{multline*}
+		Resolvemos el sistema, pasamos de ejes viento a ejes rotor de
+		cola y calculamos las reacciones y momentos de la cola sobre el
+		centro de masas.
+
+	\item Comprobamos el error en $\Omega$; si cae dentro del margen termina
+		el proceso de trimado, si no volvemos a calcular $\theta$
+\end{enumerate}
+
+\section{Convergencia del trimado}
+Es difícil asegurar la convergencia del trimado ya que estamos resolviendo
+un sistema de ecuaciones no lineales.
+
+Cuando se resuelven las ecuaciones no lineales despejamos un parámetro a
+calcular de la ecuación. De esta forma obtenemos para dicho parámetro una
+iteración de punto fijo del tipo:
+
+\begin{equation*}
+	x_{n + 1} = f(x_n)
+\end{equation*}
+
+Suponiendo la existencia del punto fijo la única forma de garantizar la
+convergencia es que en un entorno del punto fijo se cumpla que la derivada sea
+menor que uno y que el punto de partida
+esté dentro de dicho intervalo.
+
+\begin{gather*}
+ \left|f'(x)\right|<1, x\in[a,b] \\
+ x_0\in[a, b]
+\end{gather*}
+
+Esto quiere decir que ecuaciones tan simples como:
+\begin{equation*}
+	x = a + bx
+\end{equation*}
+
+no convergen para ningún punto de partida si $\left|b\right|>=1$. De hecho, la
+solución exacta de
+\begin{equation*}
+	x_{n+1} = a + bx_n
+\end{equation*}
+es:
+\begin{equation*}
+	x_n = \frac{a}{1-b} + b^n\left(x_0 - \frac{a}{1-b}\right)
+\end{equation*}
+
+Esta situación de divergencia se produce en el trimado del helicóptero al ir
+aumentando la velocidad, en la iteración de las ecuaciones longitudinales. 
+A continuación se realiza un examen aproximado del equilibrio longitudinal para
+averiguar en qué condiciones se produce la inestabilidad de la iteración.
+
+Supongamos el helicóptero en vuelo rectilíneo horizontal y uniforme. En el
+análisis de fuerzas sólo consideramos el rotor, el fuselaje y el estabilizador
+horizontal y despreciamos el estabilizador vertical y el rotor de cola. En el
+diagrama se pueden observar la posición de las fuerzas y momentos del
+helicóptero.
+
+\begin{figure}
+	\input{Figuras/trimado_aproximado.pstex_t}
+\end{figure}
+
+Del equilibrio vertical:
+
+\begin{equation*}
+	\cos(\beta_{1c} + \theta)T + L_f + L_{tp} = W
+\end{equation*}
+
+y despreciando la sustentación del fuselaje y del estabilizador horizontal
+frente al peso y la sustentación del rotor $L_f,L_{tp}\ll T,W$, y suponiendo 
+ángulos pequeños $\beta_{1c},\theta \ll 1$:
+
+\begin{equation}
+	T \approx W
+\end{equation}
+
+Del equilibrio horizontal:
+
+\begin{equation}
+	T\sin(\beta_{1c} + \theta) = D_f + D_{tp} 
+\end{equation}
+
+Como siempre suponemos polar parabólica para la resistencia:
+
+\begin{align*}
+	D_f &= \frac{1}{2}\rho V^2S_f\left(c_{D_{0_f}} +
+	c_{D_{\alpha_f}}\theta^2\right) \\
+	D_{tp} &= \frac{1}{2}\rho V^2S_{tp}\left(c_{D_{0_{tp}}} +
+	c_{D_{\alpha_{tp}}}\theta^2\right) 
+\end{align*}
+
+Como los ángulos son pequeños y sustituyendo la sustentación del rotor por el
+peso del helicóptero, como se obtuvo del equilibrio vertical, tenemos:
+
+\begin{equation*}
+	\theta \approx \frac{D_0}{W} - \beta_{1c}
+\end{equation*}
+
+donde $D_0$ es la resistencia conjunta de fuselaje y estabilizador horizontal
+(sobre todo fuselaje) para ángulo de ataque nulo.
+
+Del equilibrio de momentos, directamente para ángulos pequeños:
+
+\begin{multline*}
+	M_f + M_{tp} + D_{tp}\left[\left(l_{tp} + x_{cg}\right)\theta +
+	h_{tp}\right] \\ 
+	- L_{tp}\left[l_{tp} + x_{cg} - h_{tp}\theta\right] 
+	-Tx_{cg} - T\beta_{1c}h_R - \frac{N_bK_\beta}{2}\beta_{1c} = 0
+\end{multline*}
+
+Despejando el batimiento longitudinal:
+
+\begin{equation*}
+	\beta_{1c} = a + b\theta + c\beta_{1c}
+\end{equation*}
+
+Donde 
+
+\begin{align*}
+	a =& \frac{\rho V^2}{N_bK_\beta}\left[S_fl_fc_{m_{0_f}} +
+	S_{tp}l_{tp}c_{m_{0_{tp}}} + S_{tp}c_{D_{0_{tp}}}h_{tp}
+	  -S_{tp}c_{L_{0_{tp}}}(l_{tp} + x_{cg})\right] \\
+	  &-\frac{2W}{N_bK_\beta}x_{cg} \\
+	b =& \frac{\rho V^2}{N_bK_\beta}\left[S_fl_fc_{m_{\alpha_f}} +
+	S_{tp}l_{tp}c_{m_{\alpha_{tp}}} + S_{tp}c_{D_{0_{tp}}}(l_{tp} +
+	x_{cg})\right.\\
+	  &\left.-S_{tp}(-c_{L_{0_{tp}}}h_{tp} + c_{L_{\alpha_{tp}}}(l_{tp} +
+	  x_{cg}))\right] \\
+	c =& -\frac{2Wh_R}{N_bK_\beta}
+\end{align*}
+
+El esquema de iteración aproximado queda:
+
+\begin{equation*}
+    \left\{\begin{array}{c}
+    	\theta_{n+1} \\
+    	\beta_{{1c}_{n+1}}
+    \end{array}\right\} = \left\{\begin{array}{c}
+    	\frac{D_0}{W} \\
+    	a 
+    \end{array}\right\} + \left[\begin{array}{cc}
+    	0 & -1 \\
+    	b & c
+    \end{array}\right]\left\{\begin{array}{c}
+    	\theta_n \\
+    	\beta_{{1c}_n}
+    \end{array}\right\}
+\end{equation*}
+
+La solución exacta de la anterior ecuación es análoga al caso unidimensional, 
+es decir, si $A$ y $B$ son matrices:
+
+\begin{equation*}
+	\vec{x}_{n+1} = A + B\vec{x}_n
+\end{equation*}
+
+La solución exacta de la anterior iteración es:
+
+\begin{equation*}
+	\vec{x}_n = (I - B)^{-1}A + B^n\left(\vec{x}_0 - (I - B)^{-1}A\right)
+\end{equation*}
+
+Por lo que el esquema converge si la potencia de la matriz B tiende a la matriz
+nula. Esto es así si y sólo si los autovalores de la matriz B son todos menores
+que uno. En el caso del helicóptero los autovalores vienen dados por:
+\begin{equation*}
+	\lambda = \frac{c \pm \sqrt{c^2 - 4b}}{2}
+\end{equation*}
+
+Como $c$ es negativo el mayor de ellos en valor absoluto corresponde al signo 
+negativo y varía cuadráticamente con la velocidad. Una pequeña aplicación
+numérica demuestra que por ejemplo, para el BlackHawk, al llegar aproximadamente a
+40 m/s el esquema diverge (como así ocurre en 48 m/s). Es por ello que
+necesitamos amortiguar el esquema de iteración. 
+
+\subsection{Amortiguamiento de la iteración}
+
+Sea $k$ una constante, entonces si $x_0$ es un punto fijo de $f(x)$,
+$x_0$ también es un punto fijo de $g(x)=x(1-k) + kf(x)$, por lo que podemos
+utilizar el siguiente esquema numérico para obtener el punto fijo de $f$:
+
+\begin{equation*}
+	x_{n+1} = x_n(1 - k) + kf(x_n)
+\end{equation*}
+
+con la ventaja de que $\left|g'(x)\right| = 1 - k(1 - f'(x))$ por lo que
+eligiendo el valor de $k$ podemos hacer converger la iteración aunque sea
+$\left|f'(x)\right|>1$.
+
+Por lo tanto, en cada bucle del algoritmo de trimado aparece un factor de
+amortiguamiento que empieza valiendo uno, y que decrece progresivamente si se
+alcanza el máximo de iteraciones permitidas para conseguir la convergencia.
+
+Alternativamente se puede especificar al método de trimado que utilice el 
+método de Newton, en cuyo caso también se puede aplicar la fórmula de
+amortiguamiento. Si la fórmula para el método de Newton es:
+\begin{equation*}
+	x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)} = h(x_n)
+\end{equation*}
+
+Hacemos:
+\begin{equation*}
+	x_{n+1} = x_n(1-k) + kh(x_n) = x_n - k\frac{f(x_n)}{f'(x_n)}
+\end{equation*}
+
+
+%Resolvemos iterativamente. Utilizamos el siguiente pseudocódigo:
+%\begin{itemize}
+%	\item VELOCIDAD, OMEGA\_A, GAMMA, BETA: parametros de trimado.
+%	\item THETA: angulo de cabeceo
+%	\item FI: angulo de balance
+%	\item LAMBDA\_0, LAMBDA\_0T: velocidad inducida por el rotor y rotor de
+%		cola.
+%	\item BETA1\_C, BETA1\_S: primeros armónicos del batimiento
+%	\item OMEGA, OMEGAT: velocidad de rotación del rotor y rotor de cola
+%	\item CONTROLES: vector angulos del colectivo y del cíclico
+%	\item MF, MTP, MFN: momentos de fuselaje, estabilizador horizontal y
+%		vertical.
+%	\item FF, FTP, FFN: fuerzas de fuselaje, estabilizador horizontal y
+%		vertical.
+%	\item T, TT: Sustentacion del rotor y rotor de cola.
+%	\item Q, QT, QMOTOR: Par del rotor, rotor de cola y motor.
+%\end{itemize}
+
+%\begin{verbatim}
+%Estimar valores iniciales de THETA, FI, LAMBDA_0, BETA1_S, OMEGA
+%mientras ERR_CONTROLES>EPS_CONTROLES:
+%    mientras ERR_OMEGA>EPS_OMEGA:
+%        mientras ERR_FI>EPS_FI:
+%            mientras ERR_THETA>EPS_THETA:
+%                calcula velocidad y velocidad angular a partir de FI, THETA, OMEGA_A,
+%                VELOCIDAD, GAMMA, BETA
+%                calcula MF, MTP, MFN, FF, FTP, FFN
+%                calcula T partir de ecuacion de fuerzas en eje z
+%                calcula BETA1_C a partir de ecuacion de momentos de cabeceo	
+%                calcula THETA a partir de la ecuacion horizontal y vertical de
+%                fuerzas
+%                calcula ERR_THETA
+%            calcula iterativamente LAMBDA_0 a partir de T
+%            calcula Q
+%            calcula OMEGAT a partir de OMEGA
+%            calcula TT a partir de la ecuacion de momentos de guiñada
+%            calcula BETA1_S a partir de la ecuacion de momentos de balance
+%            calcula FI a partir de la ecuacion de fuerzas lateral
+%            calcula ERR_FI
+%        calcula LAMBDA_0T
+%        calcula QT
+%        calcula QMOTOR a partir de Q y QT
+%        calcula OMEGA a partir de QMOTOR
+%        calcula ERR_OMEGA
+%     calcula CONTROLES a partir de las ecuaciones de batimiento
+%     calcula ERR_CONTROLES
+%\end{verbatim}
+

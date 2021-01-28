@@ -1,0 +1,667 @@
+\chapter{Sistemas de referencia}
+A lo largo de todo este documento, utilizaremos los siguientes sistemas de referencia:
+
+\begin{itemize}
+  \item Ejes geocéntricos
+  \item Ejes inerciales de referencia
+  \item Ejes locales de referencia
+  \item Ejes cuerpo
+  \item Ejes rotor
+  \item Ejes rotor-viento
+  \item Ejes rotor de cola
+  \item Ejes rotor de cola-viento
+  \item Ejes pala
+  \item Ejes rotación
+\end{itemize}
+
+Para dejar claro de en qué sistema de referencia estamos expresando las 
+componentes de una magnitud vectorial, añadiremos siempre un subíndice, que
+indicamos más adelante en la explicación en detalle de cada sistema de
+referencia. Como excepciones a esta regla, si no se indica subíndice para la 
+velocidad y la velocidad angular se entiende que hablamos de ejes cuerpo.
+
+\section[E. geocéntricos]{Ejes geocéntricos}
+Ejes con origen en el centro de la tierra, el plano xy coincidente con el plano
+ecuatorial, con el eje x dirigido hacia el meridiano de Greenwich y el eje z
+hacia el polo norte (ver \ref{fig:geo1}). 
+Suponemos que estos ejes son inerciales despreciando el
+movimiento de la tierra en torno al sol y el movimiento de rotación sobre su
+propio eje. La posición del helicóptero la expresamos en coordenadas cartesianas, 
+utilizando el subíndice ``G''. Debido a que los datos geográficos se encuentran
+en coordenadas geodésicas, y el subsistema visual de la simulación exige expresar 
+la posición en dichas coordenadas, será necesario transformar la posición a
+coordenadas geodésicas de longitud $\lambda$, latitud $\phi$ y altitud $h$.
+Información sobre este sistema se encuentra disponible en numerosas referencias,
+pero aquí por comodidad se hace un breve resumen (ver 183-203 de \cite{GPS}):
+
+\begin{figure}
+	\input{Figuras/ejesGeocentricos.pstex_t}
+	\caption{Ejes geocéntricos y longitud geodésica}
+	\label{fig:geo1}
+
+	\input{Figuras/coordenadasGeodesicas.pstex_t}
+	\caption{Latitud y altitud geodésicas}
+	\label{fig:geo2}
+\end{figure}
+
+
+\subsection{Coordenadas geodésicas}
+Si modelamos la superficie de la tierra mediante un elipsoide de revolución,
+podemos especificar la posición de cualquier punto respecto a la tierra mediante
+el siguiente conjunto de coordenadas (ver figuras \ref{fig:geo1} y
+\ref{fig:geo2}):
+
+\begin{itemize}
+  \item altitud $h$: la distancia desde el punto a su proyección sobre la
+  superficie del elipsoide.
+  \item longitud $\lambda$: el ángulo que forma el meridiano donde se encuentra
+  la proyección del punto con el meridiano de referencia (Greenwich). La
+  longitud geodésica es equivalente a la longitud geocéntrica.
+  \item latitud $\phi$: el ángulo que forma la vertical local (la normal a la 
+  superficie del elipsoide) con el plano ecuatorial.
+\end{itemize}
+ 
+El paso de coordenadas geodésicas a coordenadas cartesianas geocéntricas es muy
+sencillo:
+
+\begin{align*}
+\label{Cambio de coordenadas geodesicas a geocentricas}
+	x_G &= (N+h)\cos\phi\cos\lambda \\
+	y_G &= (N+h)\cos\phi\sin\lambda \\
+	z_G &= \left[N(1-e^2) + h\right]\sin\phi 
+\end{align*}
+
+
+$N$ es un radio de curvatura y vale:
+
+\begin{equation*}
+	N=\frac{a}{\sqrt{1-f(2-f)\sin^2\phi}}
+\end{equation*}
+
+Donde los parámetros que aparecen en las anteriores ecuaciones
+definen la forma del elipsoide:
+
+\begin{align*}
+	e &= \sqrt{\frac{a^2 - b^2}{a^2}}\\
+	f &= \frac{a-b}{a}
+\end{align*}
+
+$e$ es la excentricidad, $f$ el achatamiento y $a$ y $b$ los semiejes mayor y
+menor del elipsoide respectivamente (que se encuentra revolucionado según el semieje
+menor, es decir, $a$ es también el radio ecuatorial). Como a partir de sólo
+dos parámetros el elipsoide queda definido normalmente se suelen dar como datos
+el achatamiento y el radio ecuatorial. 
+
+Debido a que la superficie de la tierra no es obviamente un elipsoide se pueden
+especificar numerosos elipsoides, ajustando los parámetros de modo que 
+mediante mínimos cuadrados se minimice la distancia entre la superficie de la
+tierra y el elipsoide. Si la minimización se aplica a una región de la tierra
+obtenemos un elipsoide local y si se aplica a toda la superficie de la tierra
+un elipsoide global. En concreto el elipsoide que utilizaremos es el WGS84
+(World Geodetic System 1984), un elipsoide global, cuyo centro coincide con el
+centro de la tierra y con los siguientes parámetros: 
+
+\begin{align*}
+	a &= 6 378 137 m \\
+	\frac{1}{f} &= 298.257 223 563
+\end{align*}
+
+La definición exacta y otras propiedades se pueden consultar en \cite{WGS84}.
+
+El paso de coordenadas cartesianas a geodésicas es más complicado y lo
+resolvemos numéricamente:
+\begin{align*}
+	\tan\lambda &= \frac{y_G}{x_G} \\
+    \tan\phi_2 &= \frac{1}{\sqrt{x_G^2 + y_G^2}}\left(z_G +
+    e^2a\frac{\tan\phi_1}{\sqrt{1 + (\tan\phi_1)^2(f-1)^2}}\right) \\
+	h &= \frac{\sqrt{x_G^2 + y_G^2}}{\cos\phi} - N
+\end{align*}
+
+Donde la segunda fórmula es recursiva y da el siguiente valor estimado de
+latitud a partir del anterior, denotados respectivamente con los subíndices 2 y
+1. Como valor inicial de latitud en la iteración utilizaremos obviamente la 
+latitud en el instante anterior del helicóptero, pero para el instante inicial 
+necesitamos otra estimación, por ejemplo, la latitud para altitud cero:
+
+\begin{equation*}
+	\tan\phi_1 = \frac{1}{1-e^2}\frac{z_G}{\sqrt{x_G^2 + y_G^2}} 
+\end{equation*}
+
+Al aproximarnos a los polos la anterior fórmula deja de ser válida, por lo que
+resolvemos la inversa de la tangente, y cambiamos la ecuación para la altura:
+\begin{equation*}
+    h = \frac{z_G}{\sin\phi} - N(1-e^2)
+\end{equation*}
+
+\section[E. inerciales]{Ejes inerciales de referencia}
+Ejes con el plano xy coincidente con el suelo, de forma precisa: el plano
+paralelo al geoide, con el eje x apuntando hacia el sur (tangente al meridiano
+local), el eje y apuntando hacia el este (tangente al paralelo local) y el eje
+z según la vertical local. El origen de los ejes inerciales de referencia es
+arbitrario, pudiendo hacerlo coincidir, por ejemplo, con la posición inicial del
+helicóptero. Por comodidad se pueden cambiar dichos ejes más adelante
+transformando adecuadamente la orientación de los ejes cuerpo y el vector de
+posición del helicóptero. Denotamos a estos ejes mediante el subíndice ``I''.
+
+La matriz de cambio de coordenadas entre los ejes inerciales y los ejes 
+geocéntricos depende de la latitud y longitud del origen de los ejes 
+inerciales:
+
+\begin{equation*}
+	L_{IG} = \left[\begin{array}{ccc}
+		\sin\phi\cos\lambda & \sin\phi\sin\lambda &-\cos\phi \\
+		-\sin\lambda & \cos\lambda & 0 \\
+		\cos\phi\cos\lambda & \cos\phi\sin\lambda & \sin\phi \\
+	\end{array}\right]
+\end{equation*}
+
+
+\subsection{Ejes locales de referencia}
+Definidos de manera similar a los ejes inerciales de referencia pero su origen
+se desplaza al moverse el helicóptero, de forma que coincide con la proyección
+del centro del helicóptero sobre la superficie del elipsoide El plano xy es
+de nuevo tangente al elipsoide en el punto proyectado, con el eje x hacia el
+sur, el eje y hacia el este y el eje z según la vertical local. Identificamos
+a estos ejes con el subíndice ``L'' y son útiles ya que la orientación del
+helicóptero viene especificada mediante los ángulos de Euler respecto a estos
+ejes.
+
+La matriz de cambio $L_{LG}$ es idéntica a $L_{IG}$ con la única diferencia que
+el origen de los ejes cambia con el tiempo.
+
+Para aclarar conceptos: con la posición inicial del helicóptero de latitud,
+longitud y altura calculamos los ejes inerciales y la posición inicial en
+coordenadas cartesianas geocéntricas. Respecto a estos ejes se da el
+desplazamiento del helicóptero $x_I$, $y_I$, $z_I$ y se tiene su orientación con
+el cuaternio $q_0$, $q_1$, $q_2$, $q_3$. Se utilizan estos ejes en vez de los
+geocéntricos cartesianos, que también son inerciales, porque es más intuitivo
+imaginar el desplazamiento y orientación del helicóptero respecto a la posición
+inicial y respecto a la horizontal local inicial que respecto al centro de la tierra y
+el plano ecuatorial, aunque físicamente sea indiferente. En cada instante de
+tiempo, como hemos calculado la posición inicial en coordenadas cartesianas 
+geocéntricas y tenemos el desplazamiento calculamos las coordenadas $x_G$, $y_G$,
+$z_G$ del helicóptero y pasamos estas coordenadas a geodésicas $\lambda$,
+$\phi$, $h$ porque el subsistema visual nos pide indicarle la posición del helicóptero
+en dichas coordenadas. Además nos pide indicar la orientación mediante ángulos
+de Euler medidos respecto a la horizontal local, por lo que con las coordenadas
+geodésicas calculamos los ejes locales de referencia, y respecto a ellos
+calculamos los ángulos de Euler.
+
+
+\section{Ejes cuerpo}
+Ejes ligados al helicóptero, concretamente al fuselaje (que suponemos rígido),
+con origen en el centro de masas del helicóptero y el plano xz contenido en el
+plano de simetría del helicóptero, el eje z dirigido ``hacia abajo'', el eje x 
+dirigido hacia el morro del helicóptero y el eje y perpendicular al plano xz, 
+formando un triedro a derechas y de forma que el plano xy es paralelo al plano 
+del rotor. En realidad los ejes cuerpo son también hasta cierto punto arbitrarios 
+ya que el helicóptero no es totalmente simétrico, ni el plano yz es totalmente
+paralelo al plano del rotor. Denotamos estos ejes mediante el subíndice ``B''
+
+\subsection{Cambio de ejes cuerpo a ejes inerciales de referencia}
+Guardamos la orientación del helicóptero respecto a los ejes inerciales de
+referencia añadiendo al vector de estado las magnitudes $q_0$, $q_1$, $q_2$ y
+$q_3$, que representan las cuatro componentes del cuaternio unidad $q$ con parte escalar
+$q_0$ y parte vectorial $(q_1, q_2, q_3)$, que denotamos de la forma $q = \left[q_0,
+\left(q_1, q_2, q_3\right)\right]$, tal que dado un vector $\vec{r}$ cuyas componentes en
+ejes inerciales son $(x_I, y_I, z_I)$ (ver \cite{cuaternios}) .
+Entonces las componentes en ejes inerciales del
+vector rotado son la parte vectorial del cuaternio:
+
+\begin{equation*} 
+	\left[0, \left(x_B, y_B, z_B\right)\right] = q\left[0, \left(x_I, y_I,
+	z_I\right)\right]\bar{q} 
+\end{equation*}
+
+Donde $\bar{q}$ representa el conjugado del cuaternio $q$.
+Es decir, $q$ rota de los ejes inerciales a los ejes cuerpo. Aplicando la
+definición de multiplicación de cuaternios, podemos obtener la matriz de rotación
+de ejes inerciales a ejes cuerpo $R_{BI}$ y la matriz de cambio de base de ejes
+inerciales a cuerpo $L_{IB}$ es simplemente la transpuesta de la matriz de
+rotación:
+
+\begin{equation}
+	L_{IB} = R_{BI} = 
+	\left[\begin{array}{ccc}
+		1 - 2(q_2^2 + q_3^2) & 2(-q_0q_3+q_1q_2) & 2(q_0q_2 + q_1q_3) \\
+		2(q_0q_3 + q_1q_2) & 1 - 2(q_1^2 + q_3^2) & 2(-q_0q_1 + q_2q_3) \\
+		2(-q_0q_2 + q_1q_3) & 2(q_0q_1 + q_2q_3) & 1 - 2(q_1^2 + q_2^2)
+	\end{array}\right]
+	\label{eqn: LIB}
+\end{equation}
+
+Si la velocidad angular en ejes inerciales viene dada por $\vec{\omega}_I$
+entonces en un instante diferencial de tiempo provoca una rotación dada por el
+cuaternio:
+
+\begin{equation*} 
+	\delta q = \left[\cos\left(\frac{|\vec{\omega}_I|dt}{2}\right),
+	\sin\left(\frac{|\vec{\omega}_I|dt}{2}\right)\frac{\vec{\omega}_I}{|\vec{\omega}_I|}\right]
+\end{equation*}
+
+El cuaternio de rotación de ejes inerciales a cuerpo será en un instante de
+tiempo posterior $q(t+dt) = \delta q q(t)$, por lo que podemos expresar la
+derivada del cuaternio en función de la velocidad angular:
+
+\begin{equation*}
+	\dot{q} = \lim_{dt \to 0}\frac{\delta q - [1, (0, 0, 0)]}{dt}q =
+	\frac{1}{2}\left[0, \vec{\omega}_I\right]q 
+\end{equation*}
+
+La anterior ecuación dada por componentes es:
+\begin{subequations}
+\label{eq:cuaternios}
+\begin{align}
+	\dot{q}_0 &= -\frac{1}{2}( p_Iq_1 + q_Iq_2 + r_Iq_3) \\
+	\dot{q}_1 &=  \frac{1}{2}( p_Iq_0 + q_Iq_3 - r_Iq_2) \\
+	\dot{q}_2 &=  \frac{1}{2}(-p_Iq_3 + q_Iq_0 + r_Iq_1) \\
+	\dot{q}_3 &=  \frac{1}{2}( p_Iq_2 - q_Iq_1 + r_Iq_0)
+\end{align}
+\end{subequations}
+
+Añadiremos estas cuatro ecuaciones cinemáticas a la ecuación diferencial para el
+vector de estado. Hay que tener cuidado de fijarse que el vector velocidad
+angular está dado en las anteriores relaciones en coordenadas inerciales, por lo
+que habrá que transformar primero a estas coordenadas ya que en el vector de
+estado la velocidad angular se encuentra en ejes cuerpo:
+
+\begin{equation}
+    \label{eq:cuaternios2}
+	\left\{\begin{array}{c}
+		p \\
+		q \\
+		r \\
+	\end{array}\right\}_I = L_{IB}\left\{\begin{array}{c}
+		p \\
+		q \\
+		r \\
+	\end{array}\right\}_B
+\end{equation}
+
+\subsection{Ángulos de Euler}
+A pesar de que el modelo no los utiliza en absoluto el subsistema visual espera
+que para la orientación se le suministren los 3 ángulos de Euler, por lo que es
+necesario poder obtenerlos en función del cuaternio de orientación. Surge el
+problema de qué pasa para $\theta=\frac{\pi}{2}$ en cuyo caso hay dudas para
+los valores de  $\psi$ y  $\phi$. Si escribimos la matriz de cambio de
+base en función de los ángulos de Euler:
+
+\begin{equation*}
+L_{BI} = \left[\begin{array}{ccc}
+	\cos\theta\cos\psi & \cos\theta\sin\psi & -\sin\theta \\
+	-\cos\phi\sin\psi + \sin\phi\sin\theta\cos\psi & \cos\phi\cos\psi +
+	\sin\phi\sin\theta\sin\psi & \sin\phi\cos\theta \\
+	\sin\phi\sin\psi + \cos\phi\sin\theta\cos\psi & -\sin\phi\cos\psi +
+	\cos\phi\sin\theta\sin\psi & \cos\phi\cos\theta \\
+\end{array}\right] 
+\end{equation*}
+
+Podemos comparar con la matriz de cambio de base en función del cuaternio de
+rotación y obtener para $\theta \neq \pm \frac{\pi}{2}$:
+
+\begin{align*}
+	\sin\theta &= -2(-q_0q_2 + q_1q_3) \\
+	\tan\psi &= \frac{2(q_1q_2 + q_0q_3)}{1-2(q_2^2 + q_3^2)} \\
+	\tan\phi &= \frac{2(q_0q_1 + q_2q_3)}{1-2(q_1^2 + q_2^2)} 
+\end{align*}
+
+Si es $\theta = \pm\frac{\pi}{2}$ entonces:
+
+\begin{align*}
+	\psi &= 0 \\
+	\tan\phi &= \frac{q_1q_2 - q_0q_3}{q_0q_2 + q_1q_3} 
+\end{align*}
+
+Hacer $\psi = 0$ es totalmente arbitrario, ya que existen una infinidad de
+valores de $\psi$ y $\phi$ que para $\theta=\pm\frac{\pi}{2}$ dan la orientación
+correcta de los ejes cuerpo.
+
+El cuaternio de rotación está dado sin embargo respecto al sistema inercial que
+hemos definido con anterioridad, mientras que los ángulos de Euler se obtienen
+calculando las rotaciones respecto a un sistema de referencia similar al
+inercial local sólo que con el eje z y el eje x en sentidos contrarios, por lo
+que corregimos los valores anteriores: 
+
+\begin{align*}
+	\theta_2 &= -\theta_1 \\
+	\psi_2 &= \pi - \psi_1 \\
+	\phi_2 &= \pi + \phi_1 
+\end{align*}
+
+\section{Ejes rotor}
+Ejes con el origen el centro de rotación de las palas, y girados ligeramente por
+el ángulo $-\gamma_s$,  alrededor del eje $y_B$ respecto a los ejes cuerpo.
+Denotamos estos ejes con el subíndice ``h'' (ver figura \ref{fig:ejes rotor})
+
+\begin{figure}
+  \input{Figuras/ejesCuerpo-Rotor.pstex_t}
+  \caption{Ejes rotor}
+  \label{fig:ejes rotor}
+\end{figure}
+
+La matriz de cambio de base de ejes cuerpo a ejes rotor es:
+\begin{equation}
+	L_{hB} = \left[
+		\begin{array}{ccc}
+			\cos\gamma_s & 0 & \sin\gamma_s \\
+			0 & 1 & 0 \\
+			-\sin\gamma_s & 0 & \cos\gamma_s
+		\end{array}\right]
+	\label{eqn:LHB}
+\end{equation}
+		
+\section[E. rotor-viento]{Ejes rotor-viento}
+\label{sec:ejes rotor-viento}
+Ejes con el mismo origen que los ejes rotor, pero rotados alrededor del eje 
+$z_h$ un ángulo $\psi_w$ (ver figura \ref{fig:ejes viento}), que se determina 
+según la incidencia del aire sobre el rotor, y que por lo tanto cambia con 
+el movimiento del helicóptero:
+
+\begin{align*}
+  \cos(\psi_w) &=
+  \frac{u_{hrwh}}{\sqrt{u_{hrwh}^2 + v_{hrwh}^2}}
+  \\
+  \sin(\psi_w) &= 
+  \frac{v_{hrwh}}{\sqrt{u_{hrwh}^2 + v_{hrwh}^2}}
+\end{align*}
+
+Donde $u_{hrwh}$, $v_{hrwh}$, $w_{hrwh}$ representan las componentes de la
+velocidad del origen del rotor, en ejes rotor. La calculamos a partir de la
+velocidad relativa al viento del helicóptero, la velocidad angular y los
+parámetros geométricos de la posición del rotor:
+\begin{equation*}
+	\left\{\begin{array}{c}
+		u_{hrw} \\
+		v_{hrw} \\
+		w_{hrw} 
+	\end{array}\right\}_h = L_{hB}
+	\left\{\begin{array}{c}
+		u_{hrw} \\
+		v_{hrw} \\
+		w_{hrw} 
+	\end{array}\right\}_B
+\end{equation*}
+
+$L_{hB}$ ya se ha calculado (ver ecuación \ref{eqn:LHB})
+
+\begin{equation*}
+	\left\{\begin{array}{c}
+		u_{hrw} \\
+		v_{hrw} \\
+		w_{hrw} 
+	\end{array}\right\}_B = 	
+	\left\{\begin{array}{c}
+		u_{rw} \\
+		v_{rw} \\
+		w_{rw} 
+	\end{array}\right\}_B + \vec{\omega}_B\wedge
+	\left\{\begin{array}{c}
+		-x_{cg} \\
+		0 \\
+		-h_R
+	\end{array}\right\}_B
+\end{equation*}
+
+La velocidad angular de los ejes cuerpo en ejes cuerpo:
+\begin{equation*}
+	\vec{\omega_B} = \left\{\begin{array}{c}
+				p \\
+				q \\
+				r 
+			\end{array}\right\}
+\end{equation*}
+
+
+Si es $u_{hrwh}=v_{hrwh}=0$ entonces $\psi_w=0$
+Lo subíndices ``rw'' indican ``relativo al viento'', y $u$, $v$, $w$ siempre
+denotan las componentes $x$, $y$, $z$ de la velocidad. 
+Denotamos estos ejes con el subíndice ``w'' 
+
+\subsection{Magnitudes derivadas en ejes viento}
+Es necesario calcular más adelante el valor de la derivada de las dos
+componentes de la velocidad angular de los ejes viento:
+
+\begin{align}
+	p_w &= p_h\cos\psi_w + q_h\sin\psi_w \\
+	q_w &= -p_h\sin\psi_w + q_h\cos\psi_w
+	\label{eqn:velocidad angular de los ejes viento}
+\end{align}
+
+Derivando respecto al viento:
+\begin{align*}
+	\dot{p}_w &= \dot{p}_h\cos\psi_w + \dot{q}_h\sin\psi_w +
+	\dot{\psi}_w\left(-p_h\sin\psi_w + q_h\cos\psi_w\right)\\
+	\dot{q}_w &= -\dot{p}_h\sin\psi_w + \dot{q}_h\cos\psi_w +
+	\dot{\psi}_w\left(-p_h\cos\psi_w - q_h\sin\psi_w\right)
+\end{align*}
+
+El problema está en que $\dot{\psi_w}$ no se encuentra definido en determinadas
+condiciones ya que $\psi_w$ puede experimentar saltos finitos en un instante de
+tiempo:
+
+\begin{equation*}
+	\dot{\psi_w} = \frac{-v\dot{u}_{rwh} + u\dot{v}_{rwh}}{u_{rwh}^2 +
+	v_{rwh}^2}
+\end{equation*}
+
+Esto es debido a que los ejes viento cambian bruscamente por lo que no podemos
+en realidad utilizar la clásica ecuación de derivación en ejes no inerciales:
+
+\begin{equation*}
+	\frac{d\vec{r}}{dt} = \frac{\partial\vec{r}}{\partial t} +
+	\vec{\omega}\wedge\vec{r}
+\end{equation*}
+
+para calcular la derivada del vector $\vec{r}$. Lo que podemos hacer en esos
+casos es calcular dicho vector en los ejes inerciales, e inventarnos dos vectores
+$\frac{\partial\vec{r}}{\partial t}$ y $\vec{\omega}$ que den el resultados
+correcto. Hacemos entonces:
+
+\begin{equation*}
+	\frac{\partial\vec{r}}{\partial t} + \vec{\omega}\wedge\vec{r} =
+	L_{wh}\left[ 
+		\left\{\begin{array}{c}
+			\dot{x}_h \\
+			\dot{y}_h \\
+			\dot{z}_h 
+		\end{array}\right\} + \vec{\omega}_h\wedge
+		\left\{\begin{array}{c}
+			x_h \\
+			y_h \\
+			z_h
+		\end{array}\right\} \right]
+\end{equation*}
+
+Como cuando se produce el cambio brusco de ejes viento hemos seleccionado que
+sea $\psi_w=0$, entonces $L_{wh}$ es la matriz unidad, por lo que podemos
+escoger:
+
+\begin{align*}
+	\frac{\partial\vec{r}}{\partial t} &= \left\{\begin{array}{c}
+			\dot{x}_h \\
+			\dot{y}_h \\
+			\dot{z}_h 
+		\end{array}\right\} 
+	&\vec{\omega} &= \vec{\omega}_h
+\end{align*}
+
+Esto es equivalente a suponer:
+
+\begin{equation*}
+	\dot{\psi}_w = 0
+\end{equation*}
+
+
+
+\subsection{Velocidad relativa al viento}
+Suponemos que conocemos la velocidad del viento en ejes inerciales, entonces la
+velocidad del centro de masas respecto al viento en ejes cuerpo es:
+\begin{equation}
+	\left\{\begin{array}{c}
+		u_{rw} \\
+		v_{rw} \\
+		w_{rw} \\
+	\end{array}\right\}_B = 
+	\left\{\begin{array}{c}
+		u \\
+		v \\
+		w \\
+	\end{array}\right\}_B + 
+	L_{BI}\left\{\begin{array}{c}
+		u_w \\
+		v_w \\
+		w_w \\
+	\end{array}\right\}_I
+	\label{eqn: velocidad relativa al viento}
+\end{equation}
+
+\subsection{Velocidad relativa al viento en ejes viento}
+Todo el cálculo de las fuerzas sobre el rotor se realizan utilizando ejes 
+viento para simplificar las expresiones. La matriz de cambio de base de ejes
+rotor a ejes viento es:
+\begin{equation*}
+	L_{wh} = \left[\begin{array}{ccc}
+			 \cos\psi_w & \sin\psi_w & 0 \\
+			-\sin\psi_w & \cos\psi_w & 0 \\
+			0 & 0 & 1
+		\end{array}\right]
+\end{equation*}
+
+Y la velocidad relativa al viento del rotor en estos ejes es:
+
+\begin{align}
+	u_{hrww} &= \sqrt{u_{hrwh}^2 + v_{hrwh}^2} \\
+	v_{hrww} &= 0 \\
+	w_{hrww} &= w_{hrwh}
+	\label{eqn:velocidad relativa al viento del rotor}
+\end{align}
+
+
+\subsection{Coordenadas rotor}
+Las coordenadas de un punto arbitrario contenido en el plano del rotor se dan
+mediante el azimut $\psi$ y la distancia al eje de rotación $r$ (ver figura
+\ref{fig:coordenadas rotor}). El azimut se
+encuentra medido, tal como se indica en la figura, respecto a los ejes viento.
+Algunas distribuciones de magnitudes sobre el rotor se encuentran dadas en
+función del azimut pero medido respecto a ajes rotor, llamemos a este azimut
+$\psi_h$, entonces haciendo el cambio $\psi = \psi_h  + \psi_w$ tenemos para el 
+paso y batimiento:
+
+\begin{align*}
+	\left\{\begin{array}{c}
+		\theta_{1sw} \\
+		\theta_{1cw} \\
+	\end{array}\right\} &= \triangle
+	\left\{\begin{array}{c}
+		\theta_{1s} \\
+		\theta_{1c} \\
+	\end{array}\right\}\\
+	\left\{\begin{array}{c}
+		\beta_{1sw} \\
+		\beta_{1cw} \\
+	\end{array}\right\} &= \triangle
+	\left\{\begin{array}{c}
+		\beta_{1s} \\
+		\beta_{1c} \\
+	\end{array}\right\} \\
+\end{align*}
+\begin{equation*}
+	\triangle = \left[\begin{array}{cc}
+		\cos\psi_w & \sin\psi_w \\
+		-\sin\psi_w & \cos\psi_w \\
+	\end{array}\right] 
+\end{equation*}
+
+\begin{figure}
+	\input{Figuras/coordenadasRotor.pstex_t}
+	\caption{Coordenadas rotor}
+	\label{fig:coordenadas rotor}
+\end{figure}
+
+La matriz de cambio de base de ejes rotor a viento es:
+\begin{equation*}
+	L_{wh} = \left[\begin{array}{cc}
+		\triangle & \begin{array}{c} 0 \\ 0 \end{array} \\
+		\begin{array}{cc} 0 & 0 \end{array} & 1 \\
+		\end{array}\right]
+\end{equation*}
+
+Si añadimos un número como subíndice a $\psi$ nos referimos al azimut de una
+pala. Para un rotor de $N_b$ palas tenemos:
+\begin{align*}
+	\psi_i &= \bar{t} + \frac{i-1}{N_b}2\pi \\
+	i &= 1,2,\cdots,N_b 
+\end{align*}
+
+De manera similar cuando añadamos un subíndice numérico a una magnitud que esté
+dada en función de $\psi$ se entiende que sustituimos $\psi$ por $\psi_i$, es
+decir, particularizamos dicha magnitud en la i-ésima pala.
+
+$\bar{t} = \Omega t$ es el tiempo adimensional. También aparece
+frecuentemente en las expresiones la distancia al origen adimensional $\bar{r} =
+\frac{r}{R}$.
+
+\begin{figure}
+  \input{Figuras/ejesViento-Rotor.pstex_t}
+  \caption{Ejes viento}
+  \label{fig:ejes viento}
+\end{figure}
+
+
+\section[E. rotor cola]{Ejes rotor de cola}
+Definidos de forma que el eje $z_T$ es opuesto a la rotación del rotor de cola,
+el eje $x_T$ paralelo al al $x_b$ y el eje $y_T$ es perpendicular a los
+anteriores (ver figura \ref{fig:ejes cola}). Para dar la posibilidad  de un
+rotor de cola inclinado se define un ángulo $K$ que es el ángulo que forma $y_T$
+con $z_b$.
+
+\begin{figure}
+  \input{Figuras/ejesCola.pstex_t}
+  \caption{Ejes rotor de cola}
+  \label{fig:ejes cola}
+\end{figure}
+
+La matriz de cambio de base de ejes rotor de cola a ejes cuerpo es:
+\begin{equation}
+	L_{BT} = \left[\begin{array}{ccc}
+		1 & 0 & 0 \\
+		0 & \sin K & -\cos K \\
+		0 & \cos K & \sin K
+	\end{array}\right]
+\end{equation}
+
+\section[E. viento cola]{Ejes viento del rotor de cola}
+Definidos de la misma forma que los ejes viento del rotor principal, pero
+respecto a los ejes cola:
+
+\begin{align*}
+  \cos(\psi_{wT}) &=
+  \frac{\left.u_{rwT}\right|_T}{\sqrt{\left.u_{rwT}^2\right|_T+\left.v_{rwT}^2\right|_T}}
+  \\
+  \sin(\psi_{wT}) &= 
+  \frac{\left.v_{rwT}\right|_T}{\sqrt{\left.u_{rwT}^2\right|_T+\left.v_{rwT}^2\right|_T}}
+  \label{psiwT}
+\end{align*}
+
+\section{Ejes pala}
+Con origen en el centro de rotación del rotor, el eje $x_b$ se encuentra dirigido a
+lo largo de la pala y el $y_b$ hacia el borde de salida y contenido en el plano
+del rotor (ver figura \ref{fig:ejes pala}). Para referirnos a estos ejes utilizamos el subíndice ``b''
+
+\begin{figure}
+  \input{Figuras/ejesPala.pstex_t}
+  \caption{Ejes pala}
+  \label{fig:ejes pala}
+\end{figure}
+
+\section{Ejes de rotación}
+Ejes auxiliares que utilizamos para la deducción de las ecuaciones de batimiento.
+Se obtienen girando los ejes viento un ángulo $-\psi$ alrededor del eje $z_w$
+(ver figura \ref{fig:ejes rotacion}). Los indicamos con un subíndice $1$.
+
+\begin{figure}
+  \input{Figuras/ejesRotacion.pstex_t}
+  \caption{Ejes de rotación}
+  \label{fig:ejes rotacion}
+\end{figure}
+

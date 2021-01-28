@@ -1,0 +1,163 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: /home/asmodeus/PFC/txt/ejes.fig
+%%Creator: fig2dev Version 3.2 Patchlevel 4
+%%CreationDate: Mon Jan 30 19:04:33 2006
+%%For: asmodeus@Skynet ()
+%%BoundingBox: 0 0 243 265
+%%Magnification: 1.0000
+%%EndComments
+/$F2psDict 200 dict def
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/col-1 {0 setgray} bind def
+/col0 {0.000 0.000 0.000 srgb} bind def
+/col1 {0.000 0.000 1.000 srgb} bind def
+/col2 {0.000 1.000 0.000 srgb} bind def
+/col3 {0.000 1.000 1.000 srgb} bind def
+/col4 {1.000 0.000 0.000 srgb} bind def
+/col5 {1.000 0.000 1.000 srgb} bind def
+/col6 {1.000 1.000 0.000 srgb} bind def
+/col7 {1.000 1.000 1.000 srgb} bind def
+/col8 {0.000 0.000 0.560 srgb} bind def
+/col9 {0.000 0.000 0.690 srgb} bind def
+/col10 {0.000 0.000 0.820 srgb} bind def
+/col11 {0.530 0.810 1.000 srgb} bind def
+/col12 {0.000 0.560 0.000 srgb} bind def
+/col13 {0.000 0.690 0.000 srgb} bind def
+/col14 {0.000 0.820 0.000 srgb} bind def
+/col15 {0.000 0.560 0.560 srgb} bind def
+/col16 {0.000 0.690 0.690 srgb} bind def
+/col17 {0.000 0.820 0.820 srgb} bind def
+/col18 {0.560 0.000 0.000 srgb} bind def
+/col19 {0.690 0.000 0.000 srgb} bind def
+/col20 {0.820 0.000 0.000 srgb} bind def
+/col21 {0.560 0.000 0.560 srgb} bind def
+/col22 {0.690 0.000 0.690 srgb} bind def
+/col23 {0.820 0.000 0.820 srgb} bind def
+/col24 {0.500 0.190 0.000 srgb} bind def
+/col25 {0.630 0.250 0.000 srgb} bind def
+/col26 {0.750 0.380 0.000 srgb} bind def
+/col27 {1.000 0.500 0.500 srgb} bind def
+/col28 {1.000 0.630 0.630 srgb} bind def
+/col29 {1.000 0.750 0.750 srgb} bind def
+/col30 {1.000 0.880 0.880 srgb} bind def
+/col31 {1.000 0.840 0.000 srgb} bind def
+
+end
+save
+newpath 0 265 moveto 0 0 lineto 243 0 lineto 243 265 lineto closepath clip newpath
+-225.0 238.1 translate
+1 -1 scale
+
+/cp {closepath} bind def
+/ef {eofill} bind def
+/gr {grestore} bind def
+/gs {gsave} bind def
+/sa {save} bind def
+/rs {restore} bind def
+/l {lineto} bind def
+/m {moveto} bind def
+/rm {rmoveto} bind def
+/n {newpath} bind def
+/s {stroke} bind def
+/sh {show} bind def
+/slc {setlinecap} bind def
+/slj {setlinejoin} bind def
+/slw {setlinewidth} bind def
+/srgb {setrgbcolor} bind def
+/rot {rotate} bind def
+/sc {scale} bind def
+/sd {setdash} bind def
+/ff {findfont} bind def
+/sf {setfont} bind def
+/scf {scalefont} bind def
+/sw {stringwidth} bind def
+/tr {translate} bind def
+/tnt {dup dup currentrgbcolor
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add
+  4 -2 roll dup 1 exch sub 3 -1 roll mul add srgb}
+  bind def
+/shd {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+  4 -2 roll mul srgb} bind def
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+
+$F2psBegin
+10 setmiterlimit
+0 slj 0 slc
+ 0.06000 0.06000 sc
+%
+% Fig objects follow
+%
+% 
+% here starts figure with depth 50
+% Polyline
+15.000 slw
+gs  clippath
+6013 1259 m 5995 1252 l 5969 1318 l 5993 1285 l 5987 1325 l cp
+eoclip
+n 5604 2257 m
+ 5999 1270 l gs col0 s gr gr
+
+% arrowhead
+7.500 slw
+n 5987 1325 m 5993 1285 l 5969 1318 l  col0 s
+% Polyline
+30.000 slw
+gs  clippath
+5574 3951 m 5633 3951 l 5633 3801 l 5604 3920 l 5574 3801 l cp
+eoclip
+n 5604 2257 m
+ 5604 3936 l gs col0 s gr gr
+
+% arrowhead
+7.500 slw
+n 5574 3801 m 5604 3920 l 5633 3801 l 5574 3801 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+30.000 slw
+gs  clippath
+5881 -420 m 5822 -415 l 5834 -265 l 5854 -386 l 5893 -270 l cp
+eoclip
+n 5999 1270 m
+ 5853 -403 l gs col0 s gr gr
+
+% arrowhead
+7.500 slw
+n 5893 -270 m 5854 -386 l 5834 -265 l 5893 -270 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+30.000 slw
+gs  clippath
+7689 1151 m 7684 1092 l 7535 1104 l 7656 1124 l 7540 1163 l cp
+eoclip
+n 5999 1270 m
+ 7672 1123 l gs col0 s gr gr
+
+% arrowhead
+7.500 slw
+n 7540 1163 m 7656 1124 l 7535 1104 l 7540 1163 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+30.000 slw
+gs  clippath
+3910 2227 m 3910 2286 l 4059 2286 l 3941 2257 l 4059 2227 l cp
+eoclip
+n 5604 2257 m
+ 3925 2257 l gs col0 s gr gr
+
+% arrowhead
+7.500 slw
+n 4059 2227 m 3941 2257 l 4059 2286 l 4059 2227 l  cp gs 0.00 setgray ef gr  col0 s
+% Polyline
+n 5999 1270 m
+ 7678 1270 l gs col0 s gr 
+% Polyline
+2 slj
+n 7500 1275 m 7501 1275 l 7504 1273 l 7511 1269 l 7521 1264 l 7533 1256 l
+ 7545 1248 l 7556 1238 l 7566 1227 l 7572 1215 l 7575 1200 l
+ 7572 1185 l 7566 1173 l 7556 1162 l 7545 1152 l 7533 1144 l
+ 7521 1136 l 7511 1131 l 7504 1127 l 7501 1125 l
+ 7500 1125 l gs col0 s gr 
+% here ends figure;
+$F2psEnd
+rs
+showpage
